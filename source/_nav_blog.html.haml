@@ -1,0 +1,16 @@
+%ul{class: "nav-left"}
+  %li{class: "menu-item"}
+    %span{id: "namesake"}= "Cody Roberts"
+%ul{class: "nav-right"}
+  %li
+    %span{class: "menu-item"}
+      = link_to "blog", "/blog"
+  %li
+    %span{class: "menu-item"}
+      = link_to "about", "/about"
+  %li
+    %span{class: "menu-item"}
+      = link_to "projects", "/projects"
+  %li{id: "hamburger"}
+    %span{class: "menu-item"}
+      %i{class: "fa fa-bars"}

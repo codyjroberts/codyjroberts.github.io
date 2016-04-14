@@ -1,0 +1,9 @@
+%p{class: "type"}= "Articles"
+- blog.articles.select {|a| a.data.category.eql? "article" }.each do |article|
+  %div{class: "post-archive-item"}
+    = link_to article.title, article
+%br
+%p{class: "type"}= "Today I Learned"
+- blog.articles.select {|a| a.data.category.eql? "til" }.each do |til|
+  %div{class: "post-archive-item"}
+    = link_to til.title, til

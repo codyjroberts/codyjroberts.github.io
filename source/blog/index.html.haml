@@ -1,0 +1,14 @@
+.blog-wrapper
+  %nav
+    = partial "nav_blog"
+  .post-archive
+    = partial "archive"
+  .post-wrapper
+    .post-header
+      %p{class: "date"}= blog.articles[0].date.strftime("%b %-d, %Y")
+      %h2= blog.articles[0].title
+      %hr
+    .post-content
+      = blog.articles[0].body
+    .post-comment
+      = partial "disqus"

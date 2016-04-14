@@ -1,0 +1,283 @@
+@import "vendor/normalize";
+
+@import "bourbon";
+@import "base/base";
+@import "neat";
+@import "global";
+@import "github";
+@import "typography";
+
+$desktop: new-breakpoint(max-width 1120px 12);
+$tablet: new-breakpoint(max-width 768px 12);
+$mobile: new-breakpoint(max-width 435px 12);
+
+$serif: 'Radley', serif;
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-size: 1em;
+  @include linear-gradient(#fff, #eee);
+  background-attachment: fixed;
+}
+
+#namesake {
+  font-style: italic;
+  color: #000 !important;
+}
+
+
+pre>code {
+  @include media($tablet) {
+    font-size: 0.8em;
+    line-height: 0.9em;
+  }
+
+  @include media($mobile) {
+    font-size: 0.6em;
+    line-height: 0.7em;
+  }
+}
+
+.menu-item {
+  font-size: 2em;
+  font-family: $serif;
+  line-height: 1.25em;
+  margin-bottom: 0.9em;
+
+  @include media($tablet) {
+    font-size: 1.5em;
+  }
+
+  @include media($mobile) {
+    font-size: 1em;
+  }
+}
+
+.details {
+  color: #666 !important;
+  font-size: 0.8em;
+}
+
+
+.blog-wrapper {
+  @include outer-container;
+
+  nav#no-blog {
+    @include shift(2.5);
+    @include span-columns(7);
+
+    @include media($tablet) {
+      @include shift(.5);
+      @include span-columns(11);
+    }
+
+    @include media($mobile) {
+      @include shift(0);
+      @include span-columns(12);
+    }
+  }
+
+  nav {
+    vertical-align: baseline;
+    float: left;
+    line-height: 2em;
+    height: 2em;
+    padding-bottom: 9px;
+    padding-top: 9px;
+    @include shift(1);
+    @include span-columns(10);
+
+    @include media($desktop) {
+      @include shift(0.5);
+      @include span-columns(11);
+    }
+
+    @include media($tablet) {
+      @include shift(.5);
+      @include span-columns(11);
+    }
+
+    @include media($mobile) {
+      @include shift(0);
+      @include span-columns(12);
+    }
+
+    ul {
+      display: inline;
+      margin: 0;
+      padding-bottom: 0;
+
+      li {
+        display: inline;
+        width: auto;
+
+        span {
+          display: inline-block;
+          a {
+            color: #666;
+          }
+
+        }
+      }
+
+      li#hamburger {
+        display: none;
+
+        @include media($tablet) {
+          display: inline;
+        }
+      }
+    }
+
+    .nav-left {
+      padding-left: 1em;
+      float: left;
+    }
+
+    .nav-right {
+      padding-right: 1em;
+      float: right;
+
+      li {
+        padding-left: 0.8em;
+      }
+    }
+  }
+
+  .post-archive {
+    box-shadow: -1px 0 0px 0px #eee inset;
+    @include shift(1);
+    @include span-columns(3);
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-top: 80px;
+
+    @include media($desktop) {
+      @include shift(.5);
+      @include span-columns(3);
+    }
+
+    @include media($tablet) {
+      display: none;
+    }
+
+    .post-archive-item {
+      a {
+        color: #666 !important;
+      }
+
+      a:hover {
+        text-decoration: underline !important;
+      }
+    }
+  }
+
+  .show-mobile {
+    text-align: center;
+
+    @include media($tablet) {
+      @include shift(.5);
+      @include span-columns(11);
+    }
+
+    @include media($mobile) {
+      @include shift(0);
+      @include span-columns(12);
+    }
+  }
+
+  .hide-mobile {
+    @include shift(0);
+    @include span-columns(0);
+  }
+
+  .post-wrapper {
+    @include span-columns(7);
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-top: 80px;
+
+    @include media($desktop) {
+      @include span-columns(8);
+    }
+
+    @include media($tablet) {
+      margin-top: 40px;
+      @include shift(.5);
+      @include span-columns(11);
+    }
+
+    @include media($mobile) {
+      @include shift(0);
+      @include span-columns(12);
+    }
+
+    .post-content {
+    }
+
+  }
+
+  .about {
+    @include span-columns(7);
+    @include shift(2.5);
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-top: 80px;
+
+    h2 {
+      display: inline;
+      padding-bottom: 0;
+    }
+
+    i {
+      display: inline;
+      float: right;
+      padding-left: 0.2em;
+    }
+
+    @include media($tablet) {
+      margin-top: 40px;
+      @include shift(.5);
+      @include span-columns(11);
+    }
+
+    @include media($mobile) {
+      @include shift(0);
+      @include span-columns(12);
+    }
+  }
+
+  .project-list {
+    @include span-columns(7);
+    @include shift(2.5);
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-top: 80px;
+
+    h2 {
+      display: inline;
+      padding-bottom: 0;
+    }
+
+    i {
+      display: inline;
+      float: right;
+      padding-left: 0.2em;
+    }
+
+    @include media($tablet) {
+      margin-top: 40px;
+      @include shift(.5);
+      @include span-columns(11);
+    }
+
+    @include media($mobile) {
+      @include shift(0);
+      @include span-columns(12);
+    }
+  }
+}
