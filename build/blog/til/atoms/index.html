@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible'>
+<meta content='width=device-width, initial-scale=1' name='viewport'>
+<title>Elixir Atoms</title>
+<link href="../../../assets/stylesheets/application.css" rel="stylesheet" />
+<link href="//fonts.googleapis.com/css?family=Radley:400,400italic" rel="stylesheet" />
+<link href="//fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic" rel="stylesheet" />
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" rel="stylesheet" />
+<link rel="alternate" type="application/atom+xml" title="Atom Feed" href="/blog/feed.xml" />
+</head>
+<body class='type-system-traditional'>
+<div class='blog-wrapper'>
+<nav>
+<ul class='nav-left'>
+<li class='menu-item'>
+<span id='namesake'>Cody Roberts</span>
+</li>
+</ul>
+<ul class='nav-right'>
+<li>
+<span class='menu-item'>
+<a href="/blog">blog</a>
+</span>
+</li>
+<li>
+<span class='menu-item'>
+<a href="/about">about</a>
+</span>
+</li>
+<li>
+<span class='menu-item'>
+<a href="/projects">projects</a>
+</span>
+</li>
+<li id='hamburger'>
+<span class='menu-item'>
+<i class='fa fa-bars'></i>
+</span>
+</li>
+</ul>
+</nav>
+
+<div class='post-archive'>
+<p class='type'>Articles</p>
+<div class='post-archive-item'>
+<a href="/blog/article/ember-data-in-components/">Ember Data & Components</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/article/streams-vs-enums/">Streams, Enums, and Protocols!</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/article/a-tour-of-phoenix/">A Tour of Phoenix</a>
+</div>
+<br>
+<p class='type'>Today I Learned</p>
+<div class='post-archive-item'>
+<a href="/blog/til/comprehensions/">Elixir Comprehensions</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/gen-server/">What is GenServer?</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/elixir-structs/">Elixir Structs</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/atoms/">Elixir Atoms</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/squashing-commits/">Squashing Commits</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/the-reverse-splat/">Ruby's Reverse Splat</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/railroady-uml-diagrams/">Railroady</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/embedding-in-ruby/">Embedding C & Rust in Ruby</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/using-gits-interactive-staging/">Git Interactive</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/select-random-rails-record/">ActiveRecord Random</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/manage-multiple-tmux-sessions/">Tmux Sessions</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/focused-splits/">Focused Splits</a>
+</div>
+
+</div>
+<div class='post-wrapper'>
+<div class='post-header'>
+<p class='date'>Jan 27, 2016</p>
+<h2>Elixir Atoms</h2>
+<hr>
+</div>
+<div class='post-content'>
+<p>I've officially begun my Elixir journey. Coming from some experience with F# and
+Ruby I've noticed many syntax and feature similarities.  One of the first things
+I noticed was the presence of :atoms. Atoms in Elixir are similar to Ruby's
+symbol type. But Ruby and Elixir aren't the only languages that support this
+basic type. The list is long: Clojure, Smalltalk, Scheme, Scala, and Objective-C
+just to name a few. The idea seems to come from C's enum.</p>
+
+<p>In the simplest terms an atom is just a named constant. I often found myself
+using enums in C to pass an option to a function. This happens to be a common
+pattern in Elixir as well.</p>
+
+<p>Atoms come in handy when pattern matching return values. Playing around with
+Phoenix I have noticed that a lot of functions return a tuple with the first
+element being :ok or :error. This makes it really simple to handle behavior
+based on success and failure because :ok and :error will always have the same
+value that you can match against.</p>
+
+<pre class="highlight elixir"><code><span class="k">case</span> <span class="n">foo</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="no">IO</span><span class="o">.</span><span class="n">puts</span> <span class="sd">"</span><span class="s2">SUCCESS!!@!@$*()"</span>
+  <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="no">IO</span><span class="o">.</span><span class="n">puts</span> <span class="sd">"</span><span class="s2">sadface"</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>That brings me to a very important point. Atoms are completely unique. The named
+text is stored along with its numerical value, one word in size, in a lookup table.
+Atoms are NOT garbage collected, and any two atoms with the same name will always
+be equivalent. True and false are actually atoms in Elixir, there is no Boolean
+type.</p>
+
+<p>There are some pros and cons here. Atoms provide for great performance because
+their lookup times are very fast. The important caveat here is that memory
+consumption can become a real issue. Each atom is one word in size. The default
+limitation by the VM is 1,048,577 but it's unlikely that you would want anywhere
+close to that number. It has been suggested by many to never dynamically generate
+atoms, and for good reason.</p>
+
+</div>
+<div class='post-comment'>
+<div id='disqus_thread'></div>
+<script>
+  var disqus_shortname = 'bloomytil';
+  (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+</div>
+
+</div>
+</div>
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="../../../assets/javascripts/application.js"></script>
+</body>
+</html>
