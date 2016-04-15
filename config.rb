@@ -59,6 +59,7 @@ end
 activate :deploy do |deploy|
   deploy.build_before = true
   deploy.deploy_method = :git
+  deploy.branch = 'master'
 end
 
 set :fonts_dir,  "fonts-folder"

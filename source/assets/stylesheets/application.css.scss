@@ -9,7 +9,8 @@
 
 $desktop: new-breakpoint(max-width 1120px 12);
 $tablet: new-breakpoint(max-width 768px 12);
-$mobile: new-breakpoint(max-width 435px 12);
+$lrg-mobile: new-breakpoint(max-width 436px 12);
+$mobile: new-breakpoint(max-width 378px 12);
 
 $serif: 'Radley', serif;
 
@@ -36,7 +37,7 @@ pre>code {
     line-height: 0.9em;
   }
 
-  @include media($mobile) {
+  @include media($lrg-mobile) {
     font-size: 0.6em;
     line-height: 0.7em;
   }
@@ -52,8 +53,12 @@ pre>code {
     font-size: 1.5em;
   }
 
-  @include media($mobile) {
+  @include media($lrg-mobile) {
     font-size: 1em;
+  }
+
+  @include media($mobile) {
+    font-size: .8em;
   }
 }
 
@@ -75,7 +80,7 @@ pre>code {
       @include span-columns(11);
     }
 
-    @include media($mobile) {
+    @include media($lrg-mobile) {
       @include shift(0);
       @include span-columns(12);
     }
@@ -101,7 +106,7 @@ pre>code {
       @include span-columns(11);
     }
 
-    @include media($mobile) {
+    @include media($lrg-mobile) {
       @include shift(0);
       @include span-columns(12);
     }
@@ -184,7 +189,7 @@ pre>code {
       @include span-columns(11);
     }
 
-    @include media($mobile) {
+    @include media($lrg-mobile) {
       @include shift(0);
       @include span-columns(12);
     }
@@ -211,7 +216,7 @@ pre>code {
       @include span-columns(11);
     }
 
-    @include media($mobile) {
+    @include media($lrg-mobile) {
       @include shift(0);
       @include span-columns(12);
     }
@@ -246,7 +251,7 @@ pre>code {
       @include span-columns(11);
     }
 
-    @include media($mobile) {
+    @include media($lrg-mobile) {
       @include shift(0);
       @include span-columns(12);
     }
@@ -277,7 +282,7 @@ pre>code {
       @include span-columns(11);
     }
 
-    @include media($mobile) {
+    @include media($lrg-mobile) {
       @include shift(0);
       @include span-columns(12);
     }
