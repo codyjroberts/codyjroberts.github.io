@@ -17,9 +17,12 @@
         = partial "nav"
       .about
         %h2= "About"
-        %i{class: "fa fa-file-text fa-2x"}
-        %i{class: "fa fa-envelope fa-2x"}
-        %i{class: "fa fa-github fa-2x"}
+        %a{href: "mailto:codyjroberts@gmail.com"}
+          %i{class: "fa fa-envelope fa-2x"}
+        %a{href: "http://registry.jsonresume.org/codyjroberts"}
+          %i{class: "fa fa-file-text fa-2x"}
+        %a{href: "http://www.github.com/codyjroberts"}
+          %i{class: "fa fa-github fa-2x"}
         %hr
         = partial "about"
     = javascript_include_tag "https://code.jquery.com/jquery-2.1.1.min.js"

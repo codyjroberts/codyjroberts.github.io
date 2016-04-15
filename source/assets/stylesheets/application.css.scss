@@ -234,9 +234,10 @@ pre>code {
     }
 
     i {
+      color: #666;
       display: inline;
       float: right;
-      padding-left: 0.2em;
+      padding-left: 0.8em;
     }
 
     @include media($tablet) {
@@ -264,9 +265,10 @@ pre>code {
     }
 
     i {
+      padding-left: 0.8em;
       display: inline;
       float: right;
-      padding-left: 0.2em;
+      color: #666;
     }
 
     @include media($tablet) {
