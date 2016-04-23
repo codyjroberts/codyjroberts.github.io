@@ -1107,6 +1107,8 @@ body {
         width: 100%; }
         .blog-wrapper .post-wrapper:last-child {
           margin-right: 0; } }
+    .blog-wrapper .post-wrapper .post-content {
+      padding-bottom: 1em; }
   .blog-wrapper .about {
     float: left;
     display: block;
