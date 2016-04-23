@@ -1,6 +1,6 @@
 ---
-title: Phoenix Channels with EmberJS
-date: 2016-04-08
+title: Phoenix & EmberJS - Part 1
+date: 2016-04-15
 category: article
 ---
 
@@ -11,7 +11,7 @@ Phoenix v1.2.3
 ##Phoenix API
 
 The first thing we'll do is initialize our Phoenix application.  We are skipping
-brunch, an asset build tool, because we will be doing our front end seperately
+brunch, an asset build tool, because we will be doing the front end separately 
 with EmberJS.
 
 ~~~
@@ -19,14 +19,7 @@ mix phoenix.new truckn --no-brunch
 cd truckn
 ~~~
 
-Install the dependencies when prompted and then go ahead and initialize your git
-repository.
-
-~~~bash
-git init
-git add -A
-git commit -m "init"
-~~~
+Install the dependencies when prompted.
 
 Since we'll be using the JSONAPI.org standard we can go ahead and add the
 ja_serializer library to our dependencies.
@@ -58,7 +51,7 @@ seralized with Poison.
 config :phoenix, :format_encoders,
   "json-api": Poison
 
-# Configure Plug for JSON-API
+# Configure Plug for json-api
 config :plug, :mimes, %{
   "application/vnd.api+json" => ["json-api"]
 }
@@ -90,13 +83,6 @@ scope "/api", Truckn do
 
   end
 end
-~~~
-
-Lets add our changes and commit.
-
-~~~bash
-git add mix.exs web/router.ex config/config.exs
-git commit -m "Set up for JSONAPI.org standard"
 ~~~
 
 Alright now that we have our api configured for JSONAPI.org standard lets set up
@@ -250,7 +236,7 @@ We'll need to create a new helper module to help authenticate our session.
 Comeonin gives us a handy checkpw/2 function so we can compare the user given
 password with our hash stored in the database.
 
-~~elixir
+~~~elixir
 #web/helpers/session.ex
 
 defmodule Truckn.Session do
@@ -339,7 +325,7 @@ defmodule Truckn.UserController do
 
   alias Truckn.User
 
-  plug Guardian.Plug.EnsureAuthenticated, handler: Truckin.SessionController
+  plug Guardian.Plug.EnsureAuthenticated, handler: Truckn.SessionController
 
   def show(conn, _) do
     case decode_and_verify_token(conn) do
@@ -352,7 +338,7 @@ defmodule Truckn.UserController do
       {:error, _reason} ->
         conn
         |> put_status(:not_found)
-        |> render(Truckin.SessionView, "error.json", error: "Not found")
+        |> render(Truckn.SessionView, "error.json", error: "Not found")
     end
   end
 
@@ -483,53 +469,44 @@ Hopefully it worked =). Here's what I got
 }
 ~~~
 
-Lookin good. Lets commit this sucker. I recommend using git's interactive add,
-it's the best thing since Montgomery's Cheddar.
-
-~~~bash
-git add -i
-git commit -m "Add User and Session"
-~~~
+Lookin' good. 
 
 Now that our authentication is working, we can set up our Truck model. Since
 we'll need a controller and a view in addition to the model, we should just use
 the provided json generator.
 
 ~~~bash
-mix phoenix.gen.json Truck trucks name:string menu:array:string lat:float lng:float image:string
+mix phoenix.gen.json Truck trucks name:string lat:float lng:float image:string
+user_id:references:user
 ~~~
 
-Since postgresql has support for arrays we'll use that for the menu to keep it
-simple.  We need to add a few things to the migration.  We'll set null
-constraints on the name, lat, and lng columns as well as provide defaults for
-our menu and image.  I'm using an icon from [Nicolas Mollet](https://mapicons.mapsmarker.com).
-Feel free to use whatever you wish. And lastly a user_id, since we wan't every
-Truck to belong to a User
+We need to add a few things to the migration.  We'll set null
+constraints on the name, lat, and lng columns as  well as provide a default
+image.  I'm using an icon from [Nicolas Mollet](https://mapicons.mapsmarker.com).
+Feel free to use whatever you wish.
 
 ~~~elixir
 def change do
   create table(:trucks) do
     add :name, :string, null: false
-    add :menu, {:array, :string}, default: []
     add :lat, :float, null: false
     add :lng, :float, null: false
     add :image, :string, default: "https://upload.wikimedia.org/wikipedia/commons/7/76/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Cold_Food_Checkpoint_%E2%80%93_Sports_%E2%80%93_Gradient.png"
-    add :user_id, references(:users)
+    add :user_id, references(:users, on_delete: :nothing)
 
     timestamps
   end
 end
 ~~~
 
-Edit the model as well to move image and menu to optional fields, as well as
-create a relationship between our Truck and User.
+Edit the Truck model as well to move image to an optional field and create a
+relationship between Truck and User.
 
 ~~~elixir
 #web/models/truck.ex
 
 schema "trucks" do
   field :name, :string
-  field :menu, {:array, :string}
   field :lat, :float
   field :lng, :float
   field :image, :string
@@ -539,10 +516,10 @@ schema "trucks" do
 end
 
 @required_fields ~w(name lat lng)
-@optional_fields ~w(image menu)
+@optional_fields ~w(image)
 ~~~
 
-We must add a has_many relationship to the User model as well.
+We must add a has_one relationship to the User model as well.
 
 ~~~elixir
 #web/models/user.ex
@@ -552,47 +529,224 @@ schema "users" do
   field :email, :string
   field :password, :string
   field :password_hash, :string
-  has_many :trucks, Truckn.Truck
+  has_one :truck, Truckn.Truck
 
   timestamps
 end
 ~~~
 
-Before we migrate we must add a path for trucks in our router.
+
+Open up the router. Set the Truck route to depend on User.  Now's
+a good time to fix the namespace to use scope/2.
 
 ~~~elixir
 #web/router.ex
 
-scope "/v1" do
-  get "/users", UserController, :show
-  resources "/trucks", TruckController
+scope "/v1", alias: API.V1 do
+  resources "/user", UserController, only: [:show], singleton: true do
+  resources "/truck", TruckController, only: [:show, :update], singleton: true
+  end
+
   post "/sessions", SessionController, :create
 end
 ~~~
 
-Now we're good to go.
+Now that we've used an alias on our scope we'll have to change our module names.
+It's a bit of a pain but we're actually going to clean up our Truck controller
+and views while were at it.
 
-~~~bash
-mix ecto.migrate
-~~~
-
-Let's add our attributes to the TruckView.
+In the Truck Controller we need to do the following:
+<ul>
+ <li>- Add Guardian.Plug.EnsureAuthenticated plug</li>
+ <li>- Change the scrub_params to "data" to match json-api standard</li>
+ <li>- Change the update/2 params to match json-api standard</li>
+ <li>- Remove all http verbs except show/2 and update/2</li>
+ <li>- Change show/2 to ignore params since our route is a singleton</li>
+ <li>- Use Guardian.Plug.current_resource/1 to get our authenticated User & Truck</li>
+</ul>
 
 ~~~elixir
-#web/views/truck_view.ex
+#web/controller/api/v1/truck_controller.ex
+defmodule Truckn.API.V1.TruckController do
+  use Truckn.Web, :controller
 
-attributes [:name, :menu, :lat, :lng, :image]
+  alias Truckn.Truck
+
+  plug Guardian.Plug.EnsureAuthenticated, handler: Truckn.API.V1.SessionController
+  plug :scrub_params, "data" when action in [:update]
+
+  def show(conn, _) do
+    user = Guardian.Plug.current_resource(conn)
+    truck = Repo.get_by!(Truck, user_id: user.id)
+    render(conn, "show.json", data: truck)
+  end
+
+  def update(conn, %{"data" => %{"attributes" => truck_params}}) do
+    user = Guardian.Plug.current_resource(conn)
+    truck = Repo.get_by!(Truck, user_id: user.id)
+    changeset = Truck.changeset(truck, truck_params)
+
+    case Repo.update(changeset) do
+      {:ok, truck} ->
+        render(conn, "show.json", data: truck)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Truckn.API.V1.ChangesetView, "error.json", changeset: changeset)
+    end
+  end
+end
 ~~~
 
-And move our controller to the api/v1/ path
+In the User controller rename the handler view and preload the truck model.
+This will include the relationship in our use struct allowing us to use the
+has_one macro provided by ja_serializer in our view.
+
+~~~elixir
+#web/controller/api/v1/user_controller.ex
+
+plug Guardian.Plug.EnsureAuthenticated, handler: Truckn.API.V1.SessionController
+
+def show(conn, _) do
+  case decode_and_verify_token(conn) do
+    {:ok, _claims} ->
+      user = Guardian.Plug.current_resource(conn) |> Repo.preload(:truck)
+
+      conn
+      |> put_status(:ok)
+      |> render("show.json", data: user)
+    {:error, _reason} ->
+      conn
+      |> put_status(:not_found)
+      |> render(Truckn.API.V1.SessionView, "error.json", error: "Not found")
+  end
+end
+~~~
+
+
+~~~elixir
+#web/views/api/v1/user_view.ex
+defmodule Truckn.API.V1.UserView do
+  use Truckn.Web, :view
+  
+  attributes [:name, :email]
+
+  has_one :truck,
+    serializer: Truckn.API.V1.TruckView,
+    include: true
+end
+~~~
+
+~~~elixir
+#web/views/api/v1/truck_view.ex
+defmodule Truckn.API.V1.TruckView do
+  use Truckn.Web, :view
+
+  attributes [:name, :lat, :lng, :image]
+end
+~~~
+
+~~~elixir
+#web/views/api/v1/session_view.ex
+defmodule Truckn.API.V1.SessionView do
+  use Truckn.Web, :view
+
+  attributes [:name, :email, :jwt]
+
+  def render("error.json", _) do
+    %{error: "Invalid email or password."}
+  end
+
+  def render("forbidden.json", %{error: error}) do
+    %{error: error}
+  end
+end
+~~~
+
+I moved the views into /api/v1.  You'll also need to change any references to
+these these new module names. Before we migrate let's change seeds.ex to add a
+Truck to the mix.
+
+~~~elixir
+alias Truckn.{Repo, User}
+
+user = %{ name: "Admin", email: "admin@truckn.com", password: "password" }
+truck = %{ name: "Jim Bob's Shrimp Stand", lat: 41.8820989, lng: -87.6242104}
+
+User.changeset(%User{}, user)
+|> Repo.insert!
+|> Ecto.build_assoc(:truck, truck)
+|> Repo.insert!
+~~~
+
+Alright that was a lot of changes.  Instead of migrating we should drop our database
+and set up a fresh one. Launch the server so we can throw a request at it.
 
 ~~~bash
-mv web/controllers/truck_controller.ex web/controllers/api/v1/truck_controller.ex
+mix ecto.drop && mix ecto.setup
+mix phoenix.server
+
+curl --request GET \
+       --url http://localhost:4000/api/v1/user \
+       --header 'accept: application/vnd.api+json' \
+       --header 'authorization: Bearer
+       eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJVc2VyOjEiLCJleHAiOjE0NjEyMDA5MjIsImlhdCI6MTQ2MDk0MTcyMiwiaXNzIjoiVHJ1Y2tuIiwianRpIjoiODJlZGQxOWQtMTEyZi00MzU0LThiYjUtOTI5MjMzY2NlNjE5IiwicGVtIjp7fSwic3ViIjoiVXNlcjoxIiwidHlwIjoidG9rZW4ifQ.6goLJcUWjj0qMY9XyzXXwiKu_bZ9gOsYPXEXNer8xKddoPSjqUsRIKATU31AfZCenDGPDr7Sw2G62ZoknyQ8xg' \
+         --header 'cache-control: no-cache' \
+         --header 'content-type: application/vnd.api+json' \
+         --header 'postman-token: 4cff9585-fd45-a37a-c967-bd57953ab9bc'
 ~~~
+
+If we didn't forget a step you should get this back.
+
+~~~javascript
+{
+  "jsonapi": {
+    "version": "1.0"
+  },
+    "included": [
+    {
+      "type": "truck",
+      "id": "1",
+      "attributes": {
+        "name": "Jim Bob's Shrimp Stand",
+        "lng": -87.6242104,
+        "lat": 41.8820989,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/7/76/Map_marker_icon_%E2%80%93_Nicolas_Mollet_%E2%80%93_Cold_Food_Checkpoint_%E2%80%93_Sports_%E2%80%93_Gradient.png"
+      }
+    }
+  ],
+    "data": {
+      "type": "user",
+      "relationships": {
+        "truck": {
+          "data": {
+            "type": "truck",
+            "id": "1"
+          }
+        }
+      },
+      "id": "1",
+      "attributes": {
+        "name": "Admin",
+        "email": "admin@truckn.com"
+      }
+    }
+}
+~~~
+
+That does it for part 1.  Check out part 2 to see how we build our EmberJS app
+to support our Phoenix API and use channels to update Google map markers.
 
 References
 ----------
-https://github.com/AgilionApps/ja_serializer
-https://github.com/ueberauth/guardian
-https://github.com/elixircnx/comeonin
-https://github.com/AgilionApps/ja_serializer/blob/master/lib/ja_serializer/phoenix_view.ex
+<ul>
+ <li>
+ - https://github.com/AgilionApps/ja_serializer
+ </li>
+ <li>
+ - https://github.com/elixircnx/comeonin
+ </li>
+ <li>
+ - https://github.com/ueberauth/guardian
+ </li>
+</ul>
