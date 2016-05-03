@@ -949,6 +949,8 @@ body {
         width: 100%; }
         .blog-wrapper nav#no-blog:last-child {
           margin-right: 0; } }
+  .blog-wrapper img {
+    margin: auto; }
   .blog-wrapper nav {
     vertical-align: baseline;
     float: left;
