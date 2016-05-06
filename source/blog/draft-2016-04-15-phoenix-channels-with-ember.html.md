@@ -1,5 +1,5 @@
 ---
-title: Phoenix & EmberJS
+title: Phoenix & EmberJS - A real-time tutorial
 date: 2016-04-15
 category: article
 ---
@@ -8,13 +8,28 @@ For this tutorial I am using
 Elixir v1.1.2
 Phoenix v1.2.3
 
-This tutorial assumes that you have some working knowledge of elixir,
-javascript, Phoenix, and EmberJS.
+This tutorial assumes that you have some basic knowledge of Elixir,
+Javascript, Phoenix, and EmberJS.  A simple perusal of both frameworks'
+documentation should be enough.  I don't define everything so it will be helpful
+to keep the documentation open while working through the tutorial.
 
-##Phoenix API
+**Disclaimer**: This is my first time working with Phoenix and EmberJS.  It is very
+likely that there are more practical ways to achieve the goals of this application.
+Suggestions and critique are welcome and appreciated!
+
+# Introduction
+
+For this tutorial we'll go step-by-step through the creation of a Phoenix API
+and an EmberJS app to consume it.  We'll create a real-time food truck tracker
+using Phoenix Channels. We'll design our API for JWT based authentication using
+Guardian and produce JSON following the jsonapi.org specification with
+ja_serializer. In addition we'll be using ember-simple-auth for sessions and
+leaflet.js for our map.
+
+# Phoenix API
 
 The first thing we'll do is initialize our Phoenix application.  We are skipping
-brunch, an asset build tool, because we will be doing the front end separately
+brunch, an asset build tool, since we will be doing the front end separately
 with EmberJS.
 
 ~~~
@@ -24,13 +39,13 @@ cd truckn
 
 Install the dependencies when prompted.
 
-We'll be using postgresql for this tutorial.  If you don't have it installed do
-a quick google search to find out how to install it on your system. Open
-config/dev.exs to change a bit of settings. I'm on Ubuntu 14.04 and the default
+We'll be using PostgreSQL for this tutorial.  If you don't have it installed do
+a quick Google search to find out how to install it on your system. Open
+config/dev.exs to configure the database. I'm on Ubuntu 14.04 and the default
 template isn't UTF8. If this is the case for you just specify template0.  You
-may want or need to change the username and password.  Because this is just a
+may want or need to change the username and password.  For this
 tutorial I'll be keeping the default postgres username and password.  I also
-have postgresql 9.4 installed which uses port 5433 instead of the old 5432
+have PostgreSQL 9.4 installed which uses port 5433 instead of the old 5432
 (default). This may be different for your installation.  If you make any
 changes, you should probably do so in your config/test.exs file as well.
 
@@ -54,17 +69,17 @@ message saying the database has been created.
 
 ~~~bash
 mix ecto.create
-//The database for Chowmonger.Repo has been created.
 ~~~
 
-Since we'll be using the JSONAPI.org standard we should add the ja_serializer
-library to our dependencies.
+Add the ja_serializer library to our dependencies.  ja_serializer provides an
+extremely simple way to produce jsonapi.org specification JSON.  I like standards
+and EmberJS just so happens promote said specification.
 
 ~~~elixir
 #mix.exs
 
 defp deps do
-  [{:phoenix, "~> 1.1.3"},
+  [{:phoenix, "~> 1.2.3"},
     {:phoenix_ecto, "~> 2.0"},
     {:postgrex, ">= 0.0.0"},
     {:phoenix_html, "~> 2.3"},
@@ -129,8 +144,8 @@ scope "/api", Chowmonger do
 end
 ~~~
 
-Alright now that we have our api configured for JSONAPI.org standard lets set up
-our models. We'll start with our users.  Lets add Guardian and Comeonin to our
+Alright now that we have our API configured for json-api spec, let's set up
+our models. We'll start with our users.  Let's add Guardian and Comeonin to our
 dependencies, we'll use them for authentication and encryption.  We'll also need
 to add :comeonin as an application (runtime) dependency.
 
@@ -183,15 +198,14 @@ config :guardian, Guardian,
 
 Create our users using the handy json generator.  This is similar to scaffold in
 the Rails framework. This will scaffold out our migration, model, controller, and
-json views. Luxury. 
-
+json views. Luxury.
 
 ~~~bash
 mix phoenix.gen.json API.V1.User users name:string email:string password:string password_hash:string
 ~~~
 
 We are namespacing our modules here with the API.V1. prefix.  The generator will
-tell you to add the following to your route.
+tell you to add the following to your route. Don't.
 
 ~~~
 resources "/api/v1/users", API.V1.UserController, except: [:new, :edit]
@@ -212,7 +226,7 @@ scope "/api", Chowmonger do
 end
 ~~~
 
-Open up our new migration We'll want to create a unique index for our emails
+Open up our new migration. We'll want to create a unique index for our emails
 (login) as well as make our password virtual since we won't be storing it.
 
 ~~~elixir
@@ -234,7 +248,7 @@ defmodule Chowmonger.Repo.Migrations.CreateUser do
 end
 ~~~
 
-We'll also want to open up the User model and add some constraints and a
+We'll also want to open up the User model to add some constraints and a
 function to encrypt the virtual password. First we'll remove password_hash as a
 required field.  Then we'll add the following constraints:
 
@@ -247,7 +261,7 @@ def changeset(model, params \\ :empty) do
   |> cast(params, @required_fields, @optional_fields)
   |> validate_format(:email, ~r/@/)
   |> validate_length(:password, min: 5)
-  |> validate_confirmation(:password, message: "Incorrect password")
+  |> validate_confirmation(:password, message: "Invalid password")
   |> unique_constraint(:email, message: "Email in use")
   |> generate_password_hash
 end
@@ -268,9 +282,10 @@ from the given password upon change to the model.
 Let's clean up some of this generated mess. Delete the generated Page controller,
 view, template, and the associating tests.
 
-For now our only user will be the admin. Because of this we won't need most of
-our User controller, so let's slim that down.  We could have just created these
-files ourselves, it's down to preference.  Note the data key in render/3.
+For this tutorial our only user will be the admin. Because of this we won't need
+most of our User controller, so let's slim that down.  We could have just
+created these files ourselves, it's down to preference.  Note the data key in
+render/3.
 
 ~~~elixir
 #web/controllers/api/v1/user_controller.ex
@@ -397,8 +412,9 @@ end
 ~~~
 
 
-We'll need a view for our Session.  We'll have three responses, one each
-for success, invalid credentials, and forbidden access.
+We'll need a view for our Token.  We'll have three responses, one each
+for success, invalid credentials, and forbidden access.  JaSerializer handles the
+first while we'll handle the second two cases ourselves.
 
 ~~~elixir
 #web/views/api/v1/token_view.ex
@@ -418,16 +434,13 @@ defmodule Chowmonger.API.V1.TokenView do
 end
 ~~~
 
-For now our only user will be the admin. Because of this we won't need most of
-our User controller, so let's slim that down.  We could have just created these
-files ourselves, it's down to preference.
-
-Since we didn't add any way to register over the API we'll just seed our
-database with an admin user. Replace the contents of seeds.ex with the
-following.
+We'll be leaving registration for homework. We'll just seed our
+database with an admin user for this tutorial. Replace the contents of seeds.ex
+with the following.
 
 Note: This user has no special permissions, nor will it throughout the tutorial.
-[Guardian](https://github.com/ueberauth/guardian) does have the ability to pass permissions.
+[Guardian](https://github.com/ueberauth/guardian) does have the ability to pass
+permissions.
 
 ~~~elixir
 #priv/repo/seeds.ex
@@ -481,7 +494,8 @@ We're only going to expose index & show to the API for now.  This way we can get
 currently logged in user. The user route would ideally be a singleton but EmberJS
 doesn't support singleton REST calls.  So this will do for demo purposes.
 
-Next let's add the Guardian serializer to lib.
+Next let's add the Guardian serializer to lib.  This serializer is responsible
+for fetching, encoding, and storing a resource into the JWT.
 
 ~~~elixir
 #lib/chowmonger/guardian_serializer.ex
@@ -503,9 +517,8 @@ defmodule Chowmonger.GuardianSerializer do
 end
 ~~~
 
-And finally we can set up our router to post token.  We'll
-also need to add a few plugs to our pipeline so that Guardian can process the
-JWT.
+And finally we can set up our router to post token.  We'll also need to add a
+few plugs to our pipeline so that Guardian can process the JWT.
 
 ~~~elixir
 #web/router.ex
@@ -529,7 +542,7 @@ end
 ~~~
 
 If everything went well we should be able to run our server and create a
-session! Spin up the server and request a token. I use [Postman](https://www.getpostman.com/docs/),
+token! Spin up the server and request a token. I use [Postman](https://www.getpostman.com/docs/),
 but here's a cURL request for convenience.
 
 ~~~bash
@@ -545,7 +558,7 @@ curl -X POST -H "Content-Type: application/vnd.api+json" -d '{
 }' "http://localhost:4000/api/v1/token"
 ~~~
 
-Hopefully it worked =). Here's what I got
+Hopefully it worked! Here's what I got:
 
 ~~~json
 {
@@ -564,10 +577,10 @@ Hopefully it worked =). Here's what I got
 }
 ~~~
 
-Lookin' good.
+Lookin' good.  This isn't a complete solution for authentication, but it's a start.
 
 Now that authentication is working, we can set up our Truck model. Since
-we'll need a controller and a view in addition to the model, we should just use
+we'll need a controller and a view in addition to the model, we should use
 the provided json generator.
 
 ~~~bash
@@ -805,8 +818,7 @@ If we didn't forget a step you should get this back.
       "id": "1",
       "attributes": {
         "status": true,
-        "name": "Jim Bob's
-          Shrimp Stand",
+        "name": "Jim Bob's Shrimp Stand",
         "menu": [
           "Shrimp Stew",
           "Shrimp Gumbo",
@@ -1021,7 +1033,7 @@ var app = new EmberApp(defaults, {
 });
 ~~~
 
-I won't be going over any styling in this tutorial.  You can use my 
+I won't be going over any styling in this tutorial.  You can use my
 [stylesheets](TODO) to make the rest of this tutorial a bit more streamlined.
 I'm no designer so I apologize if your eyes bleed.
 
@@ -1210,7 +1222,7 @@ host/namespace/trucks.  If the request is successful the data returned is loaded
 into the Ember data store and makes it available to our map route.
 
 Ember has a set of handy dev
-[tools](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi) 
+[tools](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi)
 available for most browsers.  I highly recommend installing it!
 
 Now that our data is accessible from the template we can start droppin pins.
@@ -2060,11 +2072,11 @@ the onDragend event.
         {{truck.name}}
       {{/marker-layer}}
     {{else}}
-      {{#marker-layer lat=truck.lat lng=truck.lng 
+      {{#marker-layer lat=truck.lat lng=truck.lng
         onClick=(action 'viewTruck' truck.id)}}
         {{truck.name}}
       {{/marker-layer}}
-    {{/if}} 
+    {{/if}}
   {{/each}}
 {{/leaflet-map}}
 
@@ -2112,32 +2124,44 @@ export default Ember.Controller.extend({
 
 Now give it a try.  Login and drag a truck.  You should see the truck's new lat
 and lng log to the console and update in your database.  Open up a different
-browser to observe the magic.
+browser to observe the magic of WebSockets!
 
 This has great potential, but as it stands is very limited.  What we need to do
 is only allow the logged in user to set the location of their own truck.  I'll
 save that for another time along with registration, favorites, and possibly a
-twitter crawler.  Stay tuned.
+GenServer twitter crawler.  Stay tuned and thanks for reading.
+
+Special thanks to all those who have already created Phoenix and EmberJS tutorials.
+Without you and your wonderful posts, this would have been a much larger task.
 
 References
 ----------
 <ul>
  <li>
- - https://github.com/AgilionApps/ja_serializer
+ - [https://github.com/AgilionApps/ja_serializer](https://github.com/AgilionApps/ja_serializer)
  </li>
  <li>
- - https://github.com/elixircnx/comeonin
+ - [https://github.com/elixircnx/comeonin](https://github.com/elixircnx/comeonin)
  </li>
  <li>
- - https://github.com/ueberauth/guardian
+ - [https://github.com/ueberauth/guardian](https://github.com/ueberauth/guardian)
  </li>
  <li>
- - https://github.com/levanto-financial/ember-phoenix
+ - [https://github.com/levanto-financial/ember-phoenix](https://github.com/levanto-financial/ember-phoenix)
  </li>
  <li>
- - https://github.com/aexmachina/ember-cli-sass
+ - [https://github.com/aexmachina/ember-cli-sass](https://github.com/aexmachina/ember-cli-sass)
  </li>
  <li>
- - https://github.com/simplabs/ember-simple-auth
+ - [https://github.com/simplabs/ember-simple-auth](https://github.com/simplabs/ember-simple-auth)
+ </li>
+ <li>
+ - [http://www.phoenixframework.org/](http://www.phoenixframework.org/)
+ </li>
+ <li>
+ - [http://emberjs.com/](http://emberjs.com/)
+ </li>
+ <li>
+ - [http://leafletjs.com/](http://leafletjs.com/)
  </li>
 </ul>
