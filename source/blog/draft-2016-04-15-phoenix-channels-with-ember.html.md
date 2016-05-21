@@ -1,21 +1,8 @@
 ---
-title: Phoenix & EmberJS - A real-time tutorial
+title: Phoenix & EmberJS - Chowmonger
 date: 2016-04-15
 category: article
 ---
-
-For this tutorial I am using
-Elixir v1.1.2
-Phoenix v1.2.3
-
-This tutorial assumes that you have some basic knowledge of Elixir,
-Javascript, Phoenix, and EmberJS.  A simple perusal of both frameworks'
-documentation should be enough.  I don't define everything so it will be helpful
-to keep the documentation open while working through the tutorial.
-
-**Disclaimer**: This is my first time working with Phoenix and EmberJS.  It is very
-likely that there are more practical ways to achieve the goals of this application.
-Suggestions and critique are welcome and appreciated!
 
 # Introduction
 
@@ -25,6 +12,20 @@ using Phoenix Channels. We'll design our API for JWT based authentication using
 Guardian and produce JSON following the jsonapi.org specification with
 ja_serializer. In addition we'll be using ember-simple-auth for sessions and
 leaflet.js for our map.
+
+This tutorial assumes that you have some basic knowledge of Elixir,
+Javascript, Phoenix, and EmberJS.  A simple perusal of both frameworks'
+documentation should be enough.  I don't define everything so it will be helpful
+to keep the documentation open while working through the tutorial.
+
+### Versions
+Elixir v1.1.2
+Phoenix v1.2.3
+PostgreSQL 9.4
+
+**Disclaimer**: This is my first time working with Phoenix and EmberJS.  It is very
+likely that there are more practical ways to achieve the goals of this application.
+Suggestions and critique are welcome and appreciated!
 
 # Phoenix API
 
@@ -987,7 +988,7 @@ end
 
 Run mix deps.get per usual.
 
-##EmberJS
+# EmberJS
 
 Alright now we're ready to create our Ember app! Run the ember new generator and
 then install a few libraries that we'll be using. For authentication we're using
@@ -2134,34 +2135,19 @@ GenServer twitter crawler.  Stay tuned and thanks for reading.
 Special thanks to all those who have already created Phoenix and EmberJS tutorials.
 Without you and your wonderful posts, this would have been a much larger task.
 
-References
-----------
-<ul>
- <li>
- - [https://github.com/AgilionApps/ja_serializer](https://github.com/AgilionApps/ja_serializer)
- </li>
- <li>
- - [https://github.com/elixircnx/comeonin](https://github.com/elixircnx/comeonin)
- </li>
- <li>
- - [https://github.com/ueberauth/guardian](https://github.com/ueberauth/guardian)
- </li>
- <li>
- - [https://github.com/levanto-financial/ember-phoenix](https://github.com/levanto-financial/ember-phoenix)
- </li>
- <li>
- - [https://github.com/aexmachina/ember-cli-sass](https://github.com/aexmachina/ember-cli-sass)
- </li>
- <li>
- - [https://github.com/simplabs/ember-simple-auth](https://github.com/simplabs/ember-simple-auth)
- </li>
- <li>
- - [http://www.phoenixframework.org/](http://www.phoenixframework.org/)
- </li>
- <li>
- - [http://emberjs.com/](http://emberjs.com/)
- </li>
- <li>
- - [http://leafletjs.com/](http://leafletjs.com/)
- </li>
-</ul>
+# References
++ [JaSerializer](https://github.com/AgilionApps/ja_serializer)
+
++ [Comeonin](https://github.com/elixircnx/comeonin)
+
++ [Guardian](https://github.com/ueberauth/guardian)
+
++ [ember-simple-auth](https://github.com/simplabs/ember-simple-auth)
+
++ [Phoenix Framework](http://www.phoenixframework.org/)
+
++ [EmberJS](http://emberjs.com/)
+
++ [Leaflet](http://leafletjs.com/)
+
++ [Ember Leaflet](http://www.ember-leaflet.com/)

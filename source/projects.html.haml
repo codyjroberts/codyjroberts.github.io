@@ -16,26 +16,56 @@
       %nav{id: "no-blog"}
         = partial "nav"
       .project-list
+        %h2= "Chowmonger"
+        %a{href: "https://chowmonger.pagefrontapp.com"}
+          %i{class: "fa fa-globe fa-2x"}
+        %a{href: "https://www.github.com/chowmonger"}
+          %i{class: "fa fa-github fa-2x"}
+        %p{class: "date"}= "Apr 2016 - current"
+        %p{class: "built"}= "Phoenix, Ember, Bourbon"
+        %p{class: "details"}= "Real-time food truck platform"
+        %hr
         %h2= "Bloomyminded"
         %a{href: "http://www.bloomyminded.com"}
           %i{class: "fa fa-globe fa-2x"}
         %a{href: "http://www.github.com/codyjroberts/bloomyminded"}
           %i{class: "fa fa-github fa-2x"}
-        %p{class: "date"}= "Community database for artisan cheese"
-        %p{class: "details"}= "Built with: Rails 4 for Rails Rumble 2015"
+        %p{class: "date"}= "Nov 2015"
+        %p{class: "built"}= "Rails 4, RSpec, Capybara, Paperclip"
+        %p{class: "details"}= "Community database for artisan cheese (Rails Rumble 2015)"
+        %hr
+        %h2= "ShelterMatch"
+        %a{href: "https://sheltermatch.herokuapp.com"}
+          %i{class: "fa fa-globe fa-2x"}
+        %a{href: "https://github.com/sheltermatch/sheltermatch-hackathon-entry"}
+          %i{class: "fa fa-github fa-2x"}
+        %p{class: "date"}= "Sept 2015"
+        %p{class: "built"}= "Rails 4, Devise"
+        %p{class: "details"}= "Homeless shelter info display (Huskie Hack 2015)"
+        %hr
+        %h2= "Classroom QnA"
+        %a{href: "https://classroom-qna.herokuapp.com"}
+          %i{class: "fa fa-globe fa-2x"}
+        %a{href: "https://github.com/codyjroberts/classroom-qna"}
+          %i{class: "fa fa-github fa-2x"}
+        %p{class: "date"}= "Sept 2015"
+        %p{class: "built"}= "Rails 4, Devise, Pundit, Rollify"
+        %p{class: "details"}= "Piazza-like forum.  First Rails app!"
+        %hr
+        %h2= "Chicrime"
+        %a{href: "https://rubygems.org/gems/chicrime"}
+          %i{class: "fa fa-globe fa-2x"}
+        %a{href: "https://github.com/codyjroberts/chicrime"}
+          %i{class: "fa fa-github fa-2x"}
+        %p{class: "date"}= "Aug 2015"
+        %p{class: "built"}= "Ruby, RSpec, soda-ruby"
+        %p{class: "details"}= "Ruby gem for Chicago crime data"
         %hr
         %h2= "Locallective"
         %a{href: "http://www.locallective.com"}
           %i{class: "fa fa-globe fa-2x"}
-        %p{class: "date"}= "Chicago art collective"
-        %p{class: "details"}= "Built with: Wordpress"
-        %hr
-        %h2= "Truckn"
-        %a{href: "#"}
-          %i{class: "fa fa-globe fa-2x"}
-        %a{href: "#"}
-          %i{class: "fa fa-github fa-2x"}
-        %p{class: "date"}= "Real-time food truck SaaS concept"
-        %p{class: "details"}= "Built with: Phoenix v1.2, Ember 2.4"
+        %p{class: "date"}= "Jan 2015"
+        %p{class: "built"}= "Wordpress (LEMP)"
+        %p{class: "details"}= "Chicago art collective"
     = javascript_include_tag "https://code.jquery.com/jquery-2.1.1.min.js"
     = javascript_include_tag "application"

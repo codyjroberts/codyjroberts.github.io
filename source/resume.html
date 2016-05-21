@@ -1,0 +1,459 @@
+<!doctype html>
+<html>
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimal-ui">
+
+    <title>Cody Roberts</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css">
+
+    <style type="text/css">
+@import url(
+  https://fonts.googleapis.com/css?family=Lato:400,700
+    );
+  body {
+    background: #fff;
+    font-family: Lato, sans-serif;
+    margin: 0 0 80px;
+  }
+  a {
+    color: #2ecc71;
+  }
+  a:focus,
+  a:hover {
+    color: #f1c40f;
+    text-decoration: none;
+  }
+  p {
+    line-height: 1.5;
+    margin: 0;
+  }
+  p + p {
+    margin-top: 10px;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin-top: 0
+  }
+  section {
+    margin-top: 30px;
+  }
+  li {
+    line-height: 1.8;
+    list-style: none;
+  }
+  li:before {
+    content: "\f052";
+    float: left;
+    font: 13px Octicons;
+    margin-top: 6px;
+    margin-left: -20px;
+    opacity: .1;
+    position: absolute;
+  }
+  blockquote {
+    border-left: 5px solid #e7e9ec;
+    font-size: 14px;
+  }
+  em {
+    color: #95a5a6;
+    font-weight: normal;
+    font-style: normal;
+  }
+  h4 span:first-child {
+    color: #000;
+    font-weight: bold;
+  }
+  .container {
+    max-width: 750px;
+    padding: 0 30px;
+  }
+  .col-sm-6 {
+    margin-bottom: 10px;
+  }
+  .col-sm-12 h4 {
+    margin-top: 12px;
+  }
+  .col-sm-12 + .col-sm-12 {
+    margin-top: 30px;
+  }
+  #header {
+    background: #f4f6f6;
+    padding: 50px 0;
+    margin-bottom: 30px;
+  }
+  #header h2 {
+    color: #95a5a6;
+    font-size: 24px;
+  }
+  #content h3 {
+    color: #f1c40f;
+    font-size: 26px;
+    margin-top: -4px;
+  }
+  #content aside {
+    text-align: right;
+    padding-right: 30px;
+  }
+  #profiles .network {
+    text-transform: capitalize;
+  }
+  #work .position,
+  #volunteer .position {
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  #education .area {
+    font-weight: bold;
+  }
+  #education .area:before {
+    content: "\f0d7";
+    font: 16px Octicons;
+    margin-right: 6px;
+  }
+  #education .studyType {
+    margin-left: 25px;
+  }
+  #awards .summary,
+  #publications .summary {
+    margin-top: 8px;
+  }
+  #publications .website a:before {
+    content: attr(href);
+  }
+
+  @media (min-width: 480px) {
+    .strike-through {
+      border-top: 1px solid #f4f6f6;
+      height: 20px;
+      margin-top: 12px;
+      margin-bottom: -2px;
+      position: relative;
+    }
+    .strike-through span,
+    .strike-through a {
+      background: #fff;
+      position: absolute;
+    }
+    .strike-through span:first-child {
+      padding-right: 20px;
+      margin-top: -12px;
+    }
+    .strike-through span + span {
+      font-size: 14px;
+      margin-top: -10px;
+      padding-left: 20px;
+      right: 0;
+    }
+  }
+  @media (max-width: 768px) {
+    .col-sm-6:last-child {
+      margin-bottom: 0px;
+    }
+    #content aside {
+      margin-bottom: 20px;
+      padding-right: 0;
+      text-align: left;
+    }
+    #publications .website a:before {
+      content: "View publication";
+    }
+  }
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 26px;
+    }
+    .date {
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    .strike-through span:first-child {
+      margin-bottom: 7px;
+    }
+    .strike-through span {
+      display: block;
+    }
+    #header {
+      margin-bottom: 10px;
+      padding: 40px 0;
+    }
+    #actions {
+      display: none;
+    }
+  }
+
+    </style>
+
+  </head>
+  <body>
+
+    <header id="header">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-9 col-sm-push-3">
+            <h1>
+              Cody Roberts
+            </h1>
+            <h2>
+              Software Developer
+            </h2>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div id="content" class="container">
+
+      <section id="contact" class="row">
+        <aside class="col-sm-3">
+          <h3>Contact</h3>
+        </aside>
+        <div class="col-sm-9">
+          <div class="row">
+            <div class="col-sm-6">
+              <strong>Email</strong>
+              <div class="email"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1f7c707b66756d707d7a6d6b6c5f78727e7673317c7072">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></div>
+            </div>
+            <div class="col-sm-6">
+              <strong>Phone</strong>
+              <div class="phone">773 491 4422</div>
+            </div>
+            <div class="col-sm-6">
+              <strong>Website</strong>
+              <div class="website">
+                <a href="http://codyjroberts.com">http://codyjroberts.com</a>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <strong class="network">
+                Github
+              </strong>
+              <div class="username">
+                <div class="url">
+                  <a href="https://github.com/codyjroberts">codyjroberts</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="work" class="row">
+        <aside class="col-sm-3">
+          <h3>Work</h3>
+        </aside>
+        <div class="col-sm-9">
+          <div class="row">
+            <div class="col-sm-12">
+              <h4 class="strike-through">
+                <span>University of Illinois, Chicago</span>
+                <span class="date">
+                  January 2016 — May 2016
+                </span>
+              </h4>
+              <div class="website pull-right">
+                <a href="http://www.cs.uic.edu">http://www.cs.uic.edu</a>
+              </div>
+              <div class="position">
+                Teaching Assistant - Web Technology
+              </div>
+              <div class="summary">
+                <p>Assisted with lab activities, held office hours and graded assignments.</p>
+              </div>
+              <h4>Highlights</h4>
+              <ul class="highlights">
+                <li class="bullet">This was a new class as of Spring 2016 covering a wide range of topics: HTML, CSS, Javascript/jQuery, APIs, PhoneGap, and PHP.</li>
+              </ul>
+            </div>
+            <div class="col-sm-12">
+              <h4 class="strike-through">
+                <span>Locallective</span>
+                <span class="date">
+                  January 2015 — Current
+                </span>
+              </h4>
+              <div class="website pull-right">
+                <a href="http://locallective.com">http://locallective.com</a>
+              </div>
+              <div class="position">
+                Web Developer
+              </div>
+              <div class="summary">
+                <p>Created and maintain Locallective&#x27;s web presence.  LEMP with Wordpress on Digital Ocean.</p>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <h4 class="strike-through">
+                <span>Pastoral Artisan Cheese, Bread, &amp; Wine</span>
+                <span class="date">
+                  June 2012 — July 2015
+                </span>
+              </h4>
+              <div class="website pull-right">
+                <a href="http://www.pastoralartisan.com">http://www.pastoralartisan.com</a>
+              </div>
+              <div class="position">
+                Cheesemonger
+              </div>
+              <div class="summary">
+                <p>Provided customers with an educational retail experience. Cared for and sold cut-to-order cheese, meats, spirits and other artisanal goods.</p>
+              </div>
+              <h4>Highlights</h4>
+              <ul class="highlights">
+                <li class="bullet">Developed a google script based catering order system that saw several thousand entries.  This application helped the company move from an error prone pen and paper system to one that was digital and organized with email support.  Features included daily email summaries and customer facing order confirmation.</li>
+                <li class="bullet">Developed a simple google chrome extension that allowed users to quickly look up Pastoral gift card balances.  Pastoral&#x27;s POS system at the time allowed &#x27;overdrafting&#x27; of gift cards prompting me to make it easier to obtain balances before ringing up a customer.  The application used Sinatra, nokogiri, and mechanize to enter and retrieve data from Pastoral&#x27;s website.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="education" class="row">
+        <aside class="col-sm-3">
+          <h3>Education</h3>
+        </aside>
+        <div class="col-sm-9">
+          <div class="row">
+            <div class="col-sm-12">
+              <h4 class="strike-through">
+                <span>University of Illinois at Chicago</span>
+                <span class="date">
+                  January 2014 — December 2016
+                </span>
+              </h4>
+              <div class="area">
+                Bachelor of Science
+              </div>
+              <div class="studyType">
+                Computer Science
+              </div>
+              <h4>Courses</h4>
+              <ul class="courses">
+                <li>Independent Study - Erlang / Elixir</li>
+                <li>Mobile Development - Android / iOS</li>
+              </ul>
+            </div>
+            <div class="col-sm-12">
+              <h4 class="strike-through">
+                <span>Harold Washington College</span>
+                <span class="date">
+                  August 2011 — December 2013
+                </span>
+              </h4>
+              <div class="studyType">
+                General Education
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <section id="skills" class="row">
+        <aside class="col-sm-3">
+          <h3>Skills</h3>
+        </aside>
+        <div class="col-sm-9">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="name">
+                <h4>Modal Editing</h4>
+              </div>
+              <ul class="keywords">
+                <li>vim</li>
+                <li>tmux</li>
+              </ul>
+            </div>
+            <div class="col-sm-6">
+              <div class="name">
+                <h4>Unix CLI</h4>
+              </div>
+              <ul class="keywords">
+                <li>zsh</li>
+                <li>shell scripting</li>
+              </ul>
+            </div>
+            <div class="col-sm-6">
+              <div class="name">
+                <h4>Testing</h4>
+              </div>
+              <ul class="keywords">
+                <li>minitest</li>
+                <li>rspec</li>
+                <li>capybara-webkit</li>
+              </ul>
+            </div>
+            <div class="col-sm-6">
+              <div class="name">
+                <h4>Frameworks &amp; Libraries</h4>
+              </div>
+              <ul class="keywords">
+                <li>ember</li>
+                <li>rails</li>
+                <li>sinatra</li>
+                <li>devise</li>
+                <li>jquery</li>
+                <li>phoenix</li>
+                <li>bourbon/neat</li>
+                <li>bootstrap</li>
+              </ul>
+            </div>
+            <div class="col-sm-6">
+              <div class="name">
+                <h4>Languages</h4>
+              </div>
+              <ul class="keywords">
+                <li>rb</li>
+                <li>ex</li>
+                <li>js</li>
+                <li>c/cpp</li>
+                <li>java</li>
+                <li>sql</li>
+                <li>html/css/scss</li>
+              </ul>
+            </div>
+            <div class="col-sm-6">
+              <div class="name">
+                <h4>Other</h4>
+              </div>
+              <ul class="keywords">
+                <li>postgresql</li>
+                <li>git</li>
+                <li>travis-ci</li>
+                <li>arduino</li>
+                <li>android</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <section id="references" class="row">
+        <aside class="col-sm-3">
+          <h3>References</h3>
+        </aside>
+        <div class="col-sm-9">
+          <div class="row">
+            <div class="col-sm-12">
+              <blockquote class="reference">
+                <p>Research Associate Professor, Director of Undergraduate Studies at UIC</p>
+                <p class="name">
+                <strong>— Joe Hummel, PhD / <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3e54564b53535b520c7e4b575d105b5a4b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> / 312 355 1317</strong>
+                </p>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </body>
+</html>
