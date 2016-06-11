@@ -911,6 +911,15 @@ body {
     .menu-item {
       font-size: .8em; } }
 
+.built::before {
+  content: "Built with: ";
+  font-weight: bold; }
+
+.built {
+  color: #666 !important;
+  font-size: 0.8em;
+  float: right; }
+
 .details {
   color: #666 !important;
   font-size: 0.8em; }
