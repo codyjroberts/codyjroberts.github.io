@@ -11,7 +11,7 @@ abstraction for the server side of client-server interactions.
 
 Elixir provides the module GenServer for creating such processes. This module
 provides the same functionality of the Erlang behaviour. All one needs to do to
-utilize GenServer is to implement some callbacks. Heres a simple example:
+utilize GenServer is to implement some callbacks. Here's a simple example:
 
 ~~~elixir
 defmodule MyServer do
