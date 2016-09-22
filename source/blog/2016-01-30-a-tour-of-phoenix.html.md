@@ -15,7 +15,7 @@ of Rails is 6.4MB compared to Phoenix at 329KB. Phoenix, like Rails, is also
 very modular. But I feel that being functional makes it much easier to see
 how the pieces fit together. There aren't as many resources given Phoenix's
 early age, but you'll find many questions answered fairly quickly by
-José Valim, Chris McCord, and other prominent members of the community.
+José Valim, Chris McCord, and other eminent members of the community.
 
 I've started working through Programming Phoenix by Chris McCord, Bruce Tate,
 and José Valim. The book is currently available in Beta from Pragmatic Press.

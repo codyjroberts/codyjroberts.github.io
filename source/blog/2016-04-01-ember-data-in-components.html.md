@@ -41,12 +41,12 @@ export default Ember.Route.extend({
 ~~~
 
 
-This is great, but it wasn't what I needed.  My toy app needs to generate google
-map markers for each entry in my model.  I'm handling all my google maps
+This is great, but it wasn't what I needed.  My toy app needs to generate
+map markers for each entry in my model.  I'm handling all my maps
 generation in the javascript file inside my component.  After reading many blog
-posts and coming up short, I searched the documenation for an answer.  I knew I
-could access the store if I injected the service, but even when I did I could
-figure out how to access each item.  I tried this first:
+posts and coming up short, I searched the documentation for an answer.  I knew
+I could access the store if I injected the service, but even when I did I
+couldn't figure out how to access each item.  I tried this first:
 
 ~~~javascript
 import Ember from 'ember';
@@ -60,12 +60,12 @@ export default Ember.Component.extend({
 ~~~
 
 
-If you're new to Ember the code above may seems a bit weird.  On the fourth line
+If you're new to Ember the code above may seem a bit weird.  On the fourth line
 we are injecting the store service.  We don't actually have to send the name of
 the service we wish to inject as a parameter as it looks for the name we set it
-to, in this case store.  The fifth line is similar to $(document).ready but for
-the component. This set trucks to what I believe is a promise.  From there I
-couldn't really figure out how to access each item.  I'm still learning how
+to, in this case store.  The fifth line is similar to ``(document).ready`` but
+for the component. This set trucks to what I believe is a promise.  From there
+I couldn't really figure out how to access each item.  I'm still learning how
 promises work, so I gave this a try.
 
 ~~~javascript
@@ -124,7 +124,7 @@ export default Ember.Component.extend({
 ~~~
 
 The code above is truncated for the sake of room. Finally I could use forEach to
-iterate over my data and add as markers to my map.  Now I have no doubts that
+iterate over my data and add markers to my map.  Now I have no doubts that
 this isn't the correct way to do this.  But until I find more information on the
 subject it'll have to do.  I might have to subscribe to some Ember screencasts
 in the near future.

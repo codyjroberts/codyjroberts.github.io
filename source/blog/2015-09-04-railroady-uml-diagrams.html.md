@@ -30,5 +30,5 @@ both your models and controllers. That's it!
 I found this incredibly helpful when modeling a complex relational database.
 I'm fairly new to relational databases, so a visualization really
 helps tie everything together in my brain. I can definitely see myself using this
-tool when jumping into a large open source rails project that I'm unfamiliar
+tool when jumping into a large open source Rails project that I'm unfamiliar
 with.

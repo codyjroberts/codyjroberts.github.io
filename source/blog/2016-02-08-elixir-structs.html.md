@@ -20,7 +20,7 @@ defstruct/1 takes a key/value list where the values are the defaults. If you
 happen to be defaulting to nil for every field, you can use the alternative
 syntax on the second line that only provides the keys.
 
-You can access a struct in the same way as a Map, except it is defined by its
+You can access a struct in the same way as a Map, except it's defined by its
 module name:
 
 ~~~elixir

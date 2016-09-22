@@ -14,10 +14,11 @@ Enumerable protocol
 Protocols, as defined by elixir-lang.org, are a mechanism to achieve
 polymorphism in Elixir. The Enumerable protocol is a built-in protocol that is
 shipped with the language. Both the Enum and Stream modules implement the
-Enumerable protocol. To put it simply, this means that they both rely on the same 
-standards and can be used in the same manner. Below you can see the
-implementation of both Enum.map and Stream.map. Notice the use of the lazy function
-in Stream.map. Lazy, also shown below, returns a Stream struct for later use.
+Enumerable protocol. To put it simply, this means that they both rely on the
+same standards and can be used in the same manner. Below you can see the
+implementation of both Enum.map and Stream.map. Notice the use of the lazy
+function in Stream.map. Lazy, also shown below, returns a Stream struct for
+later use.
 
 ~~~elixir
 #Enum.map
@@ -70,6 +71,7 @@ transformations on a collection. Using Enum to pipe multiple transformations, a
 new list would be made at each transformation. If this collection is very large
 this could be very expensive. On the other hand if we use Stream to compose the
 transformations, we can build a series of transformations that aren't performed
-until the end. 
+until the end!
 
-Note: Streams are only evaluated when you call a function from the Enum module on it.
+Note: Streams are only evaluated when you pass it to a function from the Enum
+module.

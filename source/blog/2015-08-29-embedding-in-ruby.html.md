@@ -82,4 +82,4 @@ puts "Cpp: #{EmbedCpp.cpp_calc(5, 5)}"
 
 That's it!  Obviously this example is trivial, and you gain next to nothing by
 using Rust or C.  However if you need a performance increase, or have an
-existing library it could be pretty handy.
+existing library it could be pretty handy.  Just be weary of exceptions!

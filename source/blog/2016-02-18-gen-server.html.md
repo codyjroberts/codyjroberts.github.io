@@ -7,7 +7,8 @@ category: til
 Erlang is highly valued for it's concurrency model, and the OTP framework provides
 several 'behaviours' for building a current system. One such behaviour is the
 generic server process or gen_server. Generic server processes are an
-abstraction for the server side of client-server interactions.
+abstraction for the server side of client-server interactions and are often
+used to maintain state.
 
 Elixir provides the module GenServer for creating such processes. This module
 provides the same functionality of the Erlang behaviour. All one needs to do to
@@ -66,8 +67,8 @@ locally on the BEAM instance. The name can then be used in place of the pid.
 init/1
 ------
 
-Invoked when the server is started with start/2 or start/3. Initializes our map,
-the datastructure that will handle the state.
+Invoked when the server is started with start/2 or start/3. Initializes our
+map, the data structure that will handle the state.
 
 handle_cast/2
 -------------

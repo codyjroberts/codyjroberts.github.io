@@ -4,8 +4,8 @@ date: 2015-08-16
 category: til
 ---
 
-Tmux and vim have been integral to my coding practices for about a year now.  One
-of my favorite vim settings is this little bit here.
+Tmux and vim have been integral to my development practices for about a year
+now. One of my favorite vim settings is this little bit here.
 
 ~~~vim
 set winwidth=84
@@ -21,7 +21,8 @@ happen to need to see the contents of two files at the same time I'll usually
 just open up a tmux pane.
 
 I can't exactly remember where I found this, but I think it was from [Ben
-Orenstein](http://www.benorenstein.com/) of thoughtbot.  A quick search finds many .vimrc with these
-settings.  It was thoughtbot, however, who introduced me to the amazing ability
-to use the same key binding to jump between vim/tmux panes.  I highly recommend
-checking it [out](https://robots.thoughtbot.com/seamlessly-navigate-vim-and-tmux-splits).
+Orenstein](http://www.benorenstein.com/) of thoughtbot.  A quick search finds
+many .vimrc files with these settings.  It was thoughtbot, however, who
+introduced me to the amazing ability to use the same key binding to jump
+between vim/tmux panes.  I highly recommend checking it
+[out](https://robots.thoughtbot.com/seamlessly-navigate-vim-and-tmux-splits).
