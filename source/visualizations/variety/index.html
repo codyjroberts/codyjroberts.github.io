@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.label {
+  font: 1.5em "Georgia";
+  text-anchor: middle;
+}
+
+.tooltip {
+  z-index: 100;
+  position: absolute;
+  text-align: center;
+  padding: 0.5em;
+  font: 1em "Georgia";
+  border: 0px;
+  border-radius: 8px;
+  background: white;
+  border: black;
+  pointer-events: none;
+  font: "Georgia";
+}
+
+text {
+  cursor: pointer;
+}
+
+#about {
+  visibility: hidden;
+}
+
+#title {
+  font: "Georgia";
+}
+
+#description {
+  font: 1.5em "Georgia";
+}
+
+#viztitle {
+  font: small-caps bolder 4em "Georgia";
+}
+
+svg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+</style>
+
+<html>
+  <body>
+    <div id="about" class="modal">
+      <div class="modal-content">
+        <h4 id="title">About</h4>
+        <p class="description">
+          The data, albiet boring, is the core ingredients of everything I ate for an entire week.  I've grouped items into 6 different categories.  Due to odd classification I ran into difficult grouping items but ended up with Dry, Meat, Fruit, Vegetable, Seafood, Dairy.  Dry encompases things like legumes, grains, nuts and seeds and Meat includes things like Eggs which often get classified as Dairy for some reason. I didn't add herbs or spices because it detracted from the goal of the visualization. 
+        </p>
+        <p class="description">
+          I was truly interested in the variety of foods I intake as I go on bouts of eating the same things at times.  I cook about 90% of my meals although this particular week it was probably around 60%. A larger dataset would reveal a lot more about my eating habits.
+        </p>
+        <p class="description">
+          The dataset I chose severely limited my options for interesting techniques.  I chose a force bubble graph because it seemed a bit challenging for a first d3 project aswell as it's ability to easily discern quantity at a glance.  Word clouds are out of style so they say.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script src="//d3js.org/d3.v4.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+<script src="app.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+

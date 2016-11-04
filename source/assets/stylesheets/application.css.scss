@@ -30,6 +30,11 @@ body {
   color: #000 !important;
 }
 
+p>code {
+  border: solid 1px #ddd;
+  background: #fff;
+  padding: 0.1em 0.2em;
+}
 
 pre>code {
   @include media($tablet) {
