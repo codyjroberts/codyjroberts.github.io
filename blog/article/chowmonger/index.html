@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible'>
+<meta content='width=device-width, initial-scale=1' name='viewport'>
+<title>Chowmonger (Phoenix & Ember)</title>
+<link href="../../../assets/stylesheets/application.css" rel="stylesheet" />
+<link href="//fonts.googleapis.com/css?family=Radley:400,400italic" rel="stylesheet" />
+<link href="//fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic" rel="stylesheet" />
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" rel="stylesheet" />
+<link rel="alternate" type="application/atom+xml" title="Atom Feed" href="/blog/feed.xml" />
+</head>
+<body class='type-system-traditional'>
+<div class='blog-wrapper'>
+<nav>
+<ul class='nav-left'>
+<li class='menu-item'>
+<span id='namesake'>Cody Roberts</span>
+</li>
+</ul>
+<ul class='nav-right'>
+<li>
+<span class='menu-item'>
+<a href="/blog">blog</a>
+</span>
+</li>
+<li>
+<span class='menu-item'>
+<a href="/about">about</a>
+</span>
+</li>
+<li>
+<span class='menu-item'>
+<a href="/projects">projects</a>
+</span>
+</li>
+<li id='hamburger'>
+<span class='menu-item'>
+<i class='fa fa-bars'></i>
+</span>
+</li>
+</ul>
+</nav>
+
+<div class='post-archive'>
+<p class='type'>Articles</p>
+<div class='post-archive-item'>
+<a href="/blog/article/chowmonger/">Chowmonger (Phoenix & Ember)</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/article/ember-data-in-components/">Ember Data & Components</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/article/streams-vs-enums/">Streams, Enums, and Protocols!</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/article/a-tour-of-phoenix/">A Tour of Phoenix</a>
+</div>
+<br>
+<p class='type'>Today I Learned</p>
+<div class='post-archive-item'>
+<a href="/blog/til/iex-test-helper/">IEx Test Helper</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/Hex-Dependencies-Via-Vimscript/">Hex Dependencies via Vimscript</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/TDD-with-Elixir-and-Neovim/">TDD with Elixir and Neovim</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/comprehensions/">Elixir Comprehensions</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/gen-server/">What is GenServer?</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/elixir-structs/">Elixir Structs</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/atoms/">Elixir Atoms</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/squashing-commits/">Squashing Commits</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/the-reverse-splat/">Ruby's Reverse Splat</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/railroady-uml-diagrams/">Railroady</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/embedding-in-ruby/">Embedding C & Rust in Ruby</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/using-gits-interactive-staging/">Git Interactive</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/select-random-rails-record/">ActiveRecord Random</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/manage-multiple-tmux-sessions/">Tmux Sessions</a>
+</div>
+<div class='post-archive-item'>
+<a href="/blog/til/focused-splits/">Focused Splits</a>
+</div>
+
+</div>
+<div class='post-wrapper'>
+<div class='post-header'>
+<p class='date'>Apr 15, 2016</p>
+<h2>Chowmonger (Phoenix & Ember)</h2>
+<hr>
+</div>
+<div class='post-content'>
+<h1 id="introduction">Introduction</h1>
+
+<p><strong>Work in Progress (Living Document)</strong>:
+Expect issues! I've learned quite a bit since I wrote this for my independent
+study back in April. I'll be updating this tutorial to reflect the current
+status of the project as soon as I have time. <em>Until then you can view a
+working version <a href="https://chowmonger-client.herokuapp.com">here</a> – Jun/08/16</em></p>
+
+<p>For this tutorial we'll go step-by-step through the creation of a Phoenix API
+and an EmberJS app to consume it.  We'll create a real-time food truck tracker
+using Phoenix Channels. We'll design our API for JWT based authentication using
+Guardian and produce JSON following the jsonapi.org specification with
+ja_serializer. In addition we'll be using ember-simple-auth for sessions and
+leaflet.js for our map.</p>
+
+<p>This tutorial assumes that you have some basic knowledge of Elixir,
+Javascript, Phoenix, and EmberJS.  A simple perusal of both frameworks'
+documentation should be enough.  I don't define everything so it will be helpful
+to keep the documentation open while working through the tutorial.</p>
+
+<h3 id="versions">Versions</h3>
+<p>Elixir v1.1.2
+Phoenix v1.2.3
+PostgreSQL 9.4</p>
+
+<p><strong>Disclaimer</strong>: This is my first time working with Phoenix and EmberJS.  It is very
+likely that there are more practical ways to achieve the goals of this application.
+Suggestions and critique are welcome and appreciated!</p>
+
+<h1 id="phoenix-api">Phoenix API</h1>
+
+<p>The first thing we'll do is initialize our Phoenix application.  We are skipping
+brunch, an asset build tool, since we will be doing the front end separately
+with EmberJS.</p>
+
+<pre class="highlight plaintext"><code>mix phoenix.new chowmonger --no-brunch
+cd truckn
+</code></pre>
+
+<p>Install the dependencies when prompted.</p>
+
+<p>We'll be using PostgreSQL for this tutorial.  If you don't have it installed do
+a quick Google search to find out how to install it on your system. Open
+config/dev.exs to configure the database. I'm on Ubuntu 14.04 and the default
+template isn't UTF8. If this is the case for you just specify template0.  You
+may want or need to change the username and password.  For this
+tutorial I'll be keeping the default postgres username and password.  I also
+have PostgreSQL 9.4 installed which uses port 5433 instead of the old 5432
+(default). This may be different for your installation.  If you make any
+changes, you should probably do so in your config/test.exs file as well.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#config/dev.exs</span>
+
+<span class="c1"># Configure your database</span>
+<span class="n">config</span> <span class="ss">:truckn</span><span class="p">,</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Repo</span><span class="p">,</span>
+  <span class="ss">adapter:</span> <span class="no">Ecto</span><span class="o">.</span><span class="no">Adapters</span><span class="o">.</span><span class="no">Postgres</span><span class="p">,</span>
+  <span class="ss">username:</span> <span class="sd">"</span><span class="s2">postgres"</span><span class="p">,</span>
+  <span class="ss">password:</span> <span class="sd">"</span><span class="s2">postgres"</span><span class="p">,</span>
+  <span class="ss">database:</span> <span class="sd">"</span><span class="s2">chowmonger_dev"</span><span class="p">,</span>
+  <span class="ss">hostname:</span> <span class="sd">"</span><span class="s2">localhost"</span><span class="p">,</span>
+  <span class="ss">template:</span> <span class="sd">"</span><span class="s2">template0"</span><span class="p">,</span>
+  <span class="ss">port:</span> <span class="m">5433</span><span class="p">,</span>
+  <span class="ss">pool_size:</span> <span class="m">10</span>
+</code></pre>
+
+<p>Now we can create our database!  Run the mix task below. It should return a
+message saying the database has been created.</p>
+
+<pre class="highlight shell"><code>mix ecto.create
+</code></pre>
+
+<p>Add the ja_serializer library to our dependencies.  ja_serializer provides an
+extremely simple way to produce jsonapi.org specification JSON.  I like standards
+and EmberJS just so happens promote said specification.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#mix.exs</span>
+
+<span class="k">defp</span> <span class="n">deps</span> <span class="k">do</span>
+  <span class="p">[{</span><span class="ss">:phoenix</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.2.3"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_ecto</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 2.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:postgrex</span><span class="p">,</span> <span class="sd">"</span><span class="s2">&gt;= 0.0.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_html</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 2.3"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_live_reload</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.0"</span><span class="p">,</span> <span class="ss">only:</span> <span class="ss">:dev</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:gettext</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.9"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:ja_serializer</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.8.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.0"</span><span class="p">}]</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Run mix deps.get to install the library.</p>
+
+<p>Lets configure Plug to accept our json-api MIME type.  And json-api to be
+serialized with <a href="https://github.com/devinus/poisonhttps://github.com/devinus/poison">Poison</a>.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#config/config.exs</span>
+
+<span class="c1"># Configure json-api to use Poison</span>
+<span class="n">config</span> <span class="ss">:phoenix</span><span class="p">,</span> <span class="ss">:format_encoders</span><span class="p">,</span>
+  <span class="sd">"</span><span class="s2">json-api"</span><span class="p">:</span> <span class="no">Poison</span>
+
+<span class="c1"># Configure Plug for json-api</span>
+<span class="n">config</span> <span class="ss">:plug</span><span class="p">,</span> <span class="ss">:mimes</span><span class="p">,</span> <span class="p">%{</span>
+  <span class="sd">"</span><span class="s2">application/vnd.api+json"</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="sd">"</span><span class="s2">json-api"</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>In order for this to take effect we'll have to recompile plug.  Don't forget
+this step!  Had me really confused when I did.</p>
+
+<pre class="highlight shell"><code>touch deps/plug/mix.exs
+mix deps.compile plug
+</code></pre>
+
+<p>Now we will set up our router for json-api, namespaced by version.  We add a few
+plugs to the :api pipeline.</p>
+
+<p><strong>JaSerializer.ContentTypeNegotiation</strong>
+to enforce json-api standard content-type/accept headers and add the response
+content-type</p>
+
+<p><strong>JaSerializer.Deserializer</strong>
+to normalize attributes to underscores</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/router.ex</span>
+
+<span class="n">pipeline</span> <span class="ss">:api</span> <span class="k">do</span>
+  <span class="n">plug</span> <span class="ss">:accepts</span><span class="p">,</span> <span class="p">[</span><span class="sd">"</span><span class="s2">json-api"</span><span class="p">]</span>
+  <span class="n">plug</span> <span class="no">JaSerializer</span><span class="o">.</span><span class="no">ContentTypeNegotiation</span>
+  <span class="n">plug</span> <span class="no">JaSerializer</span><span class="o">.</span><span class="no">Deserializer</span>
+<span class="k">end</span>
+
+<span class="n">scope</span> <span class="sd">"</span><span class="s2">/api"</span><span class="p">,</span> <span class="no">Chowmonger</span> <span class="k">do</span>
+  <span class="n">pipe_through</span> <span class="ss">:api</span>
+
+  <span class="n">scope</span> <span class="sd">"</span><span class="s2">/v1"</span> <span class="k">do</span>
+
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Alright now that we have our API configured for json-api spec, let's set up
+our models. We'll start with our users.  Let's add Guardian and Comeonin to our
+dependencies, we'll use them for authentication and encryption.  We'll also need
+to add :comeonin as an application (runtime) dependency.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#mix.exs</span>
+
+<span class="k">def</span> <span class="n">application</span> <span class="k">do</span>
+  <span class="p">[</span><span class="ss">mod:</span> <span class="p">{</span><span class="no">Chowmonger</span><span class="p">,</span> <span class="p">[]},</span>
+    <span class="ss">applications:</span> <span class="p">[</span><span class="ss">:phoenix</span><span class="p">,</span> <span class="ss">:phoenix_html</span><span class="p">,</span> <span class="ss">:cowboy</span><span class="p">,</span> <span class="ss">:logger</span><span class="p">,</span> <span class="ss">:gettext</span><span class="p">,</span>
+                  <span class="ss">:phoenix_ecto</span><span class="p">,</span> <span class="ss">:postgrex</span><span class="p">,</span> <span class="ss">:comeonin</span><span class="p">]]</span>
+<span class="k">end</span>
+
+<span class="o">...</span>
+
+<span class="k">defp</span> <span class="n">deps</span> <span class="k">do</span>
+  <span class="p">[{</span><span class="ss">:phoenix</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.1.3"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_ecto</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 2.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:postgrex</span><span class="p">,</span> <span class="sd">"</span><span class="s2">&gt;= 0.0.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_html</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 2.3"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_live_reload</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.0"</span><span class="p">,</span> <span class="ss">only:</span> <span class="ss">:dev</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:gettext</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.9"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:ja_serializer</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.8.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:comeonin</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 2.1.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:guardian</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.10.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.0"</span><span class="p">}]</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>You know the drill… mix deps.get to install the dependencies.</p>
+
+<p>Now we can configure Guardian.  Add the following to our config file. We haven't
+created our serializer yet but we will shortly.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#config/config.exs</span>
+
+<span class="c1"># Configure guardian</span>
+<span class="n">config</span> <span class="ss">:guardian</span><span class="p">,</span> <span class="no">Guardian</span><span class="p">,</span>
+  <span class="ss">allowed_algos:</span> <span class="p">[</span><span class="sd">"</span><span class="s2">HS512"</span><span class="p">],</span>
+  <span class="ss">verify_module:</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">JWT</span><span class="p">,</span>
+  <span class="ss">issuer:</span> <span class="sd">"</span><span class="s2">Chowmonger"</span><span class="p">,</span>
+  <span class="ss">ttl:</span> <span class="p">{</span> <span class="m">30</span><span class="p">,</span> <span class="ss">:days</span> <span class="p">},</span>
+  <span class="ss">verify_issuer:</span> <span class="no">true</span><span class="p">,</span>
+  <span class="ss">secret_key:</span> <span class="n">to_string</span><span class="p">(</span><span class="no">Mix</span><span class="o">.</span><span class="n">env</span><span class="p">),</span>
+  <span class="ss">permissions:</span> <span class="p">%{</span>
+    <span class="ss">default:</span> <span class="p">[</span><span class="ss">:read</span><span class="p">,</span> <span class="ss">:write</span><span class="p">]</span>
+  <span class="p">},</span>
+  <span class="ss">serializer:</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">GuardianSerializer</span>
+</code></pre>
+
+<p>Create our users using the handy json generator.  This is similar to scaffold in
+the Rails framework. This will scaffold out our migration, model, controller, and
+json views. Luxury.</p>
+
+<pre class="highlight shell"><code>mix phoenix.gen.json API.V1.User users name:string email:string password:string password_hash:string
+</code></pre>
+
+<p>We are namespacing our modules here with the API.V1. prefix.  The generator will
+tell you to add the following to your route. Don't.</p>
+
+<pre class="highlight plaintext"><code>resources "/api/v1/users", API.V1.UserController, except: [:new, :edit]
+</code></pre>
+
+<p>However we're going to do it a bit differently since we're using scope.  Modify
+the router to look like the code below.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/router.ex</span>
+
+<span class="n">scope</span> <span class="sd">"</span><span class="s2">/api"</span><span class="p">,</span> <span class="no">Chowmonger</span> <span class="k">do</span>
+  <span class="n">pipe_through</span> <span class="ss">:api</span>
+
+  <span class="n">scope</span> <span class="sd">"</span><span class="s2">v1"</span><span class="p">,</span> <span class="ss">alias:</span> <span class="no">API</span><span class="o">.</span><span class="no">V1</span> <span class="k">do</span>
+    <span class="n">resources</span> <span class="sd">"</span><span class="s2">users"</span><span class="p">,</span> <span class="no">UserController</span><span class="p">,</span> <span class="ss">except:</span> <span class="p">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:edit</span><span class="p">]</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Open up our new migration. We'll want to create a unique index for our emails
+(login) as well as make our password virtual since we won't be storing it.</p>
+
+<pre class="highlight elixir"><code><span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Repo</span><span class="o">.</span><span class="no">Migrations</span><span class="o">.</span><span class="no">CreateUser</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Ecto</span><span class="o">.</span><span class="no">Migration</span>
+
+  <span class="k">def</span> <span class="n">change</span> <span class="k">do</span>
+    <span class="n">create</span> <span class="n">table</span><span class="p">(</span><span class="ss">:users</span><span class="p">)</span> <span class="k">do</span>
+      <span class="n">add</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">null:</span> <span class="no">false</span>
+      <span class="n">add</span> <span class="ss">:email</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">null:</span> <span class="no">false</span>
+      <span class="n">add</span> <span class="ss">:password</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">virtual:</span> <span class="no">true</span>
+      <span class="n">add</span> <span class="ss">:password_hash</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">null:</span> <span class="no">false</span>
+
+      <span class="n">timestamps</span>
+    <span class="k">end</span>
+
+    <span class="n">create</span> <span class="n">unique_index</span><span class="p">(</span><span class="ss">:users</span><span class="p">,</span> <span class="p">[</span><span class="ss">:email</span><span class="p">])</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>We'll also want to open up the User model to add some constraints and a
+function to encrypt the virtual password. First we'll remove password_hash as a
+required field.  Then we'll add the following constraints:</p>
+
+<pre class="highlight elixir"><code><span class="nv">@required_fields</span> <span class="err">~</span><span class="n">w</span><span class="p">(</span><span class="n">name</span> <span class="n">email</span> <span class="n">password</span><span class="p">)</span>
+<span class="nv">@optional_fields</span> <span class="err">~</span><span class="n">w</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="ss">:empty</span><span class="p">)</span> <span class="k">do</span>
+  <span class="n">model</span>
+  <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nv">@required_fields</span><span class="p">,</span> <span class="nv">@optional_fields</span><span class="p">)</span>
+  <span class="o">|&gt;</span> <span class="n">validate_format</span><span class="p">(</span><span class="ss">:email</span><span class="p">,</span> <span class="sr">~r/@/</span><span class="p">)</span>
+  <span class="o">|&gt;</span> <span class="n">validate_length</span><span class="p">(</span><span class="ss">:password</span><span class="p">,</span> <span class="ss">min:</span> <span class="m">5</span><span class="p">)</span>
+  <span class="o">|&gt;</span> <span class="n">validate_confirmation</span><span class="p">(</span><span class="ss">:password</span><span class="p">,</span> <span class="ss">message:</span> <span class="sd">"</span><span class="s2">Invalid password"</span><span class="p">)</span>
+  <span class="o">|&gt;</span> <span class="n">unique_constraint</span><span class="p">(</span><span class="ss">:email</span><span class="p">,</span> <span class="ss">message:</span> <span class="sd">"</span><span class="s2">Email in use"</span><span class="p">)</span>
+  <span class="o">|&gt;</span> <span class="n">generate_password_hash</span>
+<span class="k">end</span>
+
+<span class="k">defp</span> <span class="n">generate_password_hash</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span>
+  <span class="k">case</span> <span class="n">changeset</span> <span class="k">do</span>
+    <span class="p">%</span><span class="no">Ecto</span><span class="o">.</span><span class="no">Changeset</span><span class="p">{</span><span class="ss">valid?:</span> <span class="no">true</span><span class="p">,</span> <span class="ss">changes:</span> <span class="p">%{</span><span class="ss">password:</span> <span class="n">password</span><span class="p">}}</span> <span class="o">-&gt;</span>
+      <span class="n">put_change</span><span class="p">(</span><span class="n">changeset</span><span class="p">,</span> <span class="ss">:password_hash</span><span class="p">,</span> <span class="no">Comeonin</span><span class="o">.</span><span class="no">Bcrypt</span><span class="o">.</span><span class="n">hashpwsalt</span><span class="p">(</span><span class="n">password</span><span class="p">))</span>
+    <span class="n">_</span> <span class="o">-&gt;</span>
+      <span class="n">changeset</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>generate_password_hash/1 is a simple function that generates an encrypted password
+from the given password upon change to the model.</p>
+
+<p>Let's clean up some of this generated mess. Delete the generated Page controller,
+view, template, and the associating tests.</p>
+
+<p>For this tutorial our only user will be the admin. Because of this we won't need
+most of our User controller, so let's slim that down.  We could have just
+created these files ourselves, it's down to preference.  Note the data key in
+render/3.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/controllers/api/v1/user_controller.ex</span>
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">UserController</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Web</span><span class="p">,</span> <span class="ss">:controller</span>
+
+  <span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">User</span>
+
+  <span class="k">def</span> <span class="n">index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="no">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="no">User</span><span class="p">)</span>
+    <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">index.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">users</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">show</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">id"</span> <span class="o">=&gt;</span> <span class="n">id</span><span class="p">})</span> <span class="k">do</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="no">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p">(</span><span class="no">User</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span>
+    <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">show.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">user</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Using data as the key in render/3 is required by ja_serializer.  Open web.ex to
+configure our routes to use JaSerializer.PhoenixView.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/web.ex</span>
+
+<span class="c1">#...</span>
+
+<span class="k">def</span> <span class="n">view</span> <span class="k">do</span>
+  <span class="kn">quote</span> <span class="k">do</span>
+    <span class="kn">use</span> <span class="no">Phoenix</span><span class="o">.</span><span class="no">View</span><span class="p">,</span> <span class="ss">root:</span> <span class="sd">"</span><span class="s2">web/templates"</span>
+    <span class="kn">use</span> <span class="no">JaSerializer</span><span class="o">.</span><span class="no">PhoenixView</span>
+
+    <span class="c1">#...</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1">#...</span>
+</code></pre>
+
+<p>This will make our views much simpler.  Open the new User view and simplify.</p>
+
+<pre class="highlight plaintext"><code>#web/views/api/v1/user_view.ex
+
+defmodule Chowmonger.API.V1.UserView do
+  use Chowmonger.Web, :view
+
+  attributes [:name, :email]
+end
+</code></pre>
+
+<p>Next we'll create our Token controller.  The Token controller will be handing
+out our JWTs.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/controllers/api/v1/token_controller.ex</span>
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TokenController</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Web</span><span class="p">,</span> <span class="ss">:controller</span>
+
+  <span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TokenView</span>
+
+  <span class="n">plug</span> <span class="ss">:scrub_params</span><span class="p">,</span> <span class="sd">"</span><span class="s2">data"</span> <span class="ow">when</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="ss">:create</span><span class="p">]</span>
+
+  <span class="k">def</span> <span class="n">create</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">data"</span> <span class="o">=&gt;</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">attributes"</span> <span class="o">=&gt;</span> <span class="n">token_params</span> <span class="p">}})</span> <span class="k">do</span>
+    <span class="k">case</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Token</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">token_params</span><span class="p">)</span> <span class="k">do</span>
+      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">user</span><span class="p">}</span> <span class="o">-&gt;</span>
+        <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">jwt</span><span class="p">,</span> <span class="n">_full_claims</span><span class="p">}</span> <span class="o">=</span> <span class="n">user</span> <span class="o">|&gt;</span> <span class="no">Guardian</span><span class="o">.</span><span class="n">encode_and_sign</span><span class="p">(</span><span class="ss">:token</span><span class="p">)</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="no">Map</span><span class="o">.</span><span class="n">put_new</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="ss">:jwt</span><span class="p">,</span> <span class="n">jwt</span><span class="p">)</span>
+
+        <span class="n">conn</span>
+        <span class="o">|&gt;</span> <span class="n">put_status</span><span class="p">(</span><span class="ss">:created</span><span class="p">)</span>
+        <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="sd">"</span><span class="s2">show.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">user</span><span class="p">)</span>
+      <span class="ss">:error</span> <span class="o">-&gt;</span>
+        <span class="n">conn</span>
+        <span class="o">|&gt;</span> <span class="n">put_status</span><span class="p">(</span><span class="ss">:unprocessable_entity</span><span class="p">)</span>
+        <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="sd">"</span><span class="s2">error.json"</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c1"># called from Guardian.Plug.EnsureAuthenticated</span>
+  <span class="k">def</span> <span class="n">unauthenticated</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">conn</span>
+    <span class="o">|&gt;</span> <span class="n">put_status</span><span class="p">(</span><span class="ss">:forbidden</span><span class="p">)</span>
+    <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="no">TokenView</span><span class="p">,</span> <span class="sd">"</span><span class="s2">forbidden.json"</span><span class="p">,</span> <span class="ss">error:</span> <span class="sd">"</span><span class="s2">Not Authenticated"</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">unauthorized</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">conn</span>
+    <span class="o">|&gt;</span> <span class="n">put_status</span><span class="p">(</span><span class="ss">:forbidden</span><span class="p">)</span>
+    <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="no">TokenView</span><span class="p">,</span> <span class="sd">"</span><span class="s2">forbidden.json"</span><span class="p">,</span> <span class="ss">error:</span> <span class="sd">"</span><span class="s2">Not Authorized"</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>We'll need to create a new helper module to help authenticate our session.
+Comeonin gives us a handy checkpw/2 function so we can compare the user given
+password with our hash stored in the database.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/helpers/token.ex</span>
+
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Token</span> <span class="k">do</span>
+  <span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Repo</span>
+  <span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">User</span>
+
+  <span class="k">def</span> <span class="n">authenticate</span><span class="p">(%{</span><span class="sd">"</span><span class="s2">email"</span> <span class="o">=&gt;</span> <span class="n">email</span><span class="p">,</span> <span class="sd">"</span><span class="s2">password"</span> <span class="o">=&gt;</span> <span class="n">password</span><span class="p">})</span> <span class="k">do</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="no">Repo</span><span class="o">.</span><span class="n">get_by</span><span class="p">(</span><span class="no">User</span><span class="p">,</span> <span class="ss">email:</span> <span class="no">String</span><span class="o">.</span><span class="n">downcase</span><span class="p">(</span><span class="n">email</span><span class="p">))</span>
+
+    <span class="k">case</span> <span class="n">check_password</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">true</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">user</span><span class="p">}</span>
+      <span class="n">_</span>    <span class="o">-&gt;</span> <span class="ss">:error</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">defp</span> <span class="n">check_password</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">case</span> <span class="n">user</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="o">-&gt;</span> <span class="no">false</span>
+      <span class="n">_</span>   <span class="o">-&gt;</span> <span class="no">Comeonin</span><span class="o">.</span><span class="no">Bcrypt</span><span class="o">.</span><span class="n">checkpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">password_hash</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+<span class="k">end</span>
+</code></pre>
+
+<p>We'll need a view for our Token.  We'll have three responses, one each
+for success, invalid credentials, and forbidden access.  JaSerializer handles the
+first while we'll handle the second two cases ourselves.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/views/api/v1/token_view.ex</span>
+
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TokenView</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Web</span><span class="p">,</span> <span class="ss">:view</span>
+
+  <span class="n">attributes</span> <span class="p">[</span><span class="ss">:id</span><span class="p">,</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:email</span><span class="p">,</span> <span class="ss">:jwt</span><span class="p">]</span>
+
+  <span class="k">def</span> <span class="n">render</span><span class="p">(</span><span class="sd">"</span><span class="s2">error.json"</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">%{</span><span class="ss">error:</span> <span class="sd">"</span><span class="s2">Invalid email or password."</span><span class="p">}</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">render</span><span class="p">(</span><span class="sd">"</span><span class="s2">forbidden.json"</span><span class="p">,</span> <span class="p">%{</span><span class="ss">error:</span> <span class="n">error</span><span class="p">})</span> <span class="k">do</span>
+    <span class="p">%{</span><span class="ss">error:</span> <span class="n">error</span><span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>We'll be leaving registration for homework. We'll just seed our
+database with an admin user for this tutorial. Replace the contents of seeds.ex
+with the following.</p>
+
+<p>Note: This user has no special permissions, nor will it throughout the tutorial.
+<a href="https://github.com/ueberauth/guardian">Guardian</a> does have the ability to pass
+permissions.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#priv/repo/seeds.ex</span>
+
+<span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="p">{</span><span class="no">Repo</span><span class="p">,</span> <span class="no">User</span><span class="p">}</span>
+
+<span class="n">admin</span> <span class="o">=</span> <span class="p">%{</span> <span class="ss">name:</span> <span class="sd">"</span><span class="s2">Admin"</span><span class="p">,</span> <span class="ss">email:</span> <span class="sd">"</span><span class="s2">admin@chowmonger.com"</span><span class="p">,</span> <span class="ss">password:</span> <span class="sd">"</span><span class="s2">password"</span> <span class="p">}</span>
+<span class="no">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="no">User</span><span class="p">{},</span> <span class="n">admin</span><span class="p">)</span> <span class="o">|&gt;</span> <span class="no">Repo</span><span class="o">.</span><span class="n">insert!</span>
+</code></pre>
+
+<p>We should be able to migrate now.  You can use the alias ecto.setup defined in
+mix.exs.  It will create, migrate, and seed the database.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/controllers/api/v1/user_controller.ex</span>
+
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">UserController</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Web</span><span class="p">,</span> <span class="ss">:controller</span>
+
+  <span class="n">plug</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="no">EnsureAuthenticated</span><span class="p">,</span> <span class="ss">handler:</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TokenController</span>
+
+  <span class="k">def</span> <span class="n">index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="n">current_resource</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+    <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">index.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">user</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">show</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">case</span> <span class="n">decode_and_verify_token</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span> <span class="k">do</span>
+      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">_claims</span><span class="p">}</span> <span class="o">-&gt;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="n">current_resource</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+
+        <span class="n">conn</span>
+        <span class="o">|&gt;</span> <span class="n">put_status</span><span class="p">(</span><span class="ss">:ok</span><span class="p">)</span>
+        <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="sd">"</span><span class="s2">show.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">user</span><span class="p">)</span>
+      <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_reason</span><span class="p">}</span> <span class="o">-&gt;</span>
+        <span class="n">conn</span>
+        <span class="o">|&gt;</span> <span class="n">put_status</span><span class="p">(</span><span class="ss">:not_found</span><span class="p">)</span>
+        <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="sd">"</span><span class="s2">errors.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="sd">"</span><span class="s2">Not found"</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">defp</span> <span class="n">decode_and_verify_token</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">conn</span>
+    <span class="o">|&gt;</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="n">current_token</span>
+    <span class="o">|&gt;</span> <span class="no">Guardian</span><span class="o">.</span><span class="n">decode_and_verify</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>We're only going to expose index &amp; show to the API for now.  This way we can get the
+currently logged in user. The user route would ideally be a singleton but EmberJS
+doesn't support singleton REST calls.  So this will do for demo purposes.</p>
+
+<p>Next let's add the Guardian serializer to lib.  This serializer is responsible
+for fetching, encoding, and storing a resource into the JWT.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#lib/chowmonger/guardian_serializer.ex</span>
+
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">GuardianSerializer</span> <span class="k">do</span>
+  <span class="nv">@behaviour</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">Serializer</span>
+
+  <span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">User</span>
+  <span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Repo</span>
+
+  <span class="k">def</span> <span class="n">for_token</span><span class="p">(</span><span class="n">user</span> <span class="o">=</span> <span class="p">%</span><span class="no">User</span><span class="p">{}),</span> <span class="k">do</span><span class="p">:</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="sd">"</span><span class="s2">User:</span><span class="si">#{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">"</span><span class="p">}</span>
+  <span class="k">def</span> <span class="n">for_token</span><span class="p">(</span><span class="n">_</span><span class="p">),</span> <span class="k">do</span><span class="p">:</span> <span class="p">{</span> <span class="ss">:error</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Unknown resource type"</span> <span class="p">}</span>
+
+  <span class="k">def</span> <span class="n">from_token</span><span class="p">(</span><span class="sd">"</span><span class="s2">User:"</span> <span class="o">&lt;&gt;</span> <span class="n">id</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="no">Repo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="no">User</span><span class="p">,</span> <span class="no">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">id</span><span class="p">))}</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">from_token</span><span class="p">(</span><span class="n">_</span><span class="p">),</span> <span class="k">do</span><span class="p">:</span> <span class="p">{</span> <span class="ss">:error</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Unknown resource type"</span> <span class="p">}</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>And finally we can set up our router to post token.  We'll also need to add a
+few plugs to our pipeline so that Guardian can process the JWT.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/router.ex</span>
+
+<span class="n">pipeline</span> <span class="ss">:api</span> <span class="k">do</span>
+  <span class="n">plug</span> <span class="ss">:accepts</span><span class="p">,</span> <span class="p">[</span><span class="sd">"</span><span class="s2">json-api"</span><span class="p">]</span>
+  <span class="n">plug</span> <span class="no">JaSerializer</span><span class="o">.</span><span class="no">ContentTypeNegotiation</span>
+  <span class="n">plug</span> <span class="no">JaSerializer</span><span class="o">.</span><span class="no">Deserializer</span>
+  <span class="n">plug</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="no">VerifyHeader</span><span class="p">,</span> <span class="ss">realm:</span> <span class="sd">"</span><span class="s2">Bearer"</span>
+  <span class="n">plug</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="no">LoadResource</span>
+<span class="k">end</span>
+
+<span class="n">scope</span> <span class="sd">"</span><span class="s2">/api"</span><span class="p">,</span> <span class="no">Chowmonger</span> <span class="k">do</span>
+  <span class="n">pipe_through</span> <span class="ss">:api</span>
+
+  <span class="n">scope</span> <span class="sd">"</span><span class="s2">/v1"</span><span class="p">,</span> <span class="ss">alias:</span> <span class="no">API</span><span class="o">.</span><span class="no">V1</span> <span class="k">do</span>
+    <span class="n">resources</span> <span class="sd">"</span><span class="s2">users"</span><span class="p">,</span> <span class="no">UserController</span><span class="p">,</span> <span class="ss">only:</span> <span class="p">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:show</span><span class="p">]</span>
+    <span class="n">post</span> <span class="sd">"</span><span class="s2">token"</span><span class="p">,</span> <span class="no">TokenController</span><span class="p">,</span> <span class="ss">:create</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>If everything went well we should be able to run our server and create a
+token! Spin up the server and request a token. I use <a href="https://www.getpostman.com/docs/">Postman</a>,
+but here's a cURL request for convenience.</p>
+
+<pre class="highlight shell"><code>mix phoenix.server
+
+curl -X POST -H <span class="s2">"Content-Type: application/vnd.api+json"</span> -d <span class="s1">'{
+  "data": {
+    "attributes": {
+      "email": "admin@chowmonger.com",
+      "password": "password"
+    }
+  }
+}'</span> <span class="s2">"http://localhost:4000/api/v1/token"</span>
+</code></pre>
+
+<p>Hopefully it worked! Here's what I got:</p>
+
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"jsonapi"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Admin"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"jwt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJVc2VyOjEiLCJleHAiOjE0NjA0OTQ0MjQsImlhdCI6MTQ2MDIzNTIyNCwiaXNzIjoiVHJ1Y2tuIiwianRpIjoiMTE2NjJiYjgtODcwYS00MDU5LTg5ZDQtOTI1NjJkZjQ3MzJkIiwicGVtIjp7fSwic3ViIjoiVXNlcjoxIiwidHlwIjoidG9rZW4ifQ.q0b7xAYa04ADCzP2onK7UZqnsDLH4iE6dqntSJ3biogmKFrhu9JXa-QdmPzxzKGpp36tYbK3ujdLitSUPpkEGg"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@chowmonger.com"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Lookin' good.  This isn't a complete solution for authentication, but it's a start.</p>
+
+<p>Now that authentication is working, we can set up our Truck model. Since
+we'll need a controller and a view in addition to the model, we should use
+the provided json generator.</p>
+
+<pre class="highlight shell"><code>mix phoenix.gen.json API.V1.Truck trucks name:string lat:float lng:float <span class="se">\</span>
+    image:string user_id:references:user menu:array:string status:boolean <span class="se">\</span>
+    categories:array:string
+</code></pre>
+
+<p>We need to add a few things to the migration.  We'll set some null constraints
+as well as a default image.</p>
+
+<pre class="highlight elixir"><code><span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Repo</span><span class="o">.</span><span class="no">Migrations</span><span class="o">.</span><span class="no">CreateAPI</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">Truck</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Ecto</span><span class="o">.</span><span class="no">Migration</span>
+
+  <span class="k">def</span> <span class="n">change</span> <span class="k">do</span>
+    <span class="n">create</span> <span class="n">table</span><span class="p">(</span><span class="ss">:trucks</span><span class="p">)</span> <span class="k">do</span>
+      <span class="n">add</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">null:</span> <span class="no">false</span>
+      <span class="n">add</span> <span class="ss">:lat</span><span class="p">,</span> <span class="ss">:float</span><span class="p">,</span> <span class="ss">null:</span> <span class="no">false</span>
+      <span class="n">add</span> <span class="ss">:lng</span><span class="p">,</span> <span class="ss">:float</span><span class="p">,</span> <span class="ss">null:</span> <span class="no">false</span>
+      <span class="n">add</span> <span class="ss">:image</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">default:</span> <span class="sd">"</span><span class="s2">https://upload.wikimedia.org/wikipedia/commons/e/e3/Food_truck_in_London.jpg"</span>
+      <span class="n">add</span> <span class="ss">:menu</span><span class="p">,</span> <span class="p">{</span><span class="ss">:array</span><span class="p">,</span> <span class="ss">:string</span><span class="p">}</span>
+      <span class="n">add</span> <span class="ss">:status</span><span class="p">,</span> <span class="ss">:boolean</span><span class="p">,</span> <span class="ss">default:</span> <span class="no">false</span>
+      <span class="n">add</span> <span class="ss">:categories</span><span class="p">,</span> <span class="p">{</span><span class="ss">:array</span><span class="p">,</span> <span class="ss">:string</span><span class="p">}</span>
+      <span class="n">add</span> <span class="ss">:user_id</span><span class="p">,</span> <span class="n">references</span><span class="p">(</span><span class="ss">:users</span><span class="p">,</span> <span class="ss">on_delete:</span> <span class="ss">:nothing</span><span class="p">)</span>
+
+      <span class="n">timestamps</span>
+    <span class="k">end</span>
+    <span class="n">create</span> <span class="n">index</span><span class="p">(</span><span class="ss">:trucks</span><span class="p">,</span> <span class="p">[</span><span class="ss">:user_id</span><span class="p">])</span>
+
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Edit the Truck model as well to move image to an optional field and create a
+relationship between Truck and User.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/models/truck.ex</span>
+
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">Truck</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Web</span><span class="p">,</span> <span class="ss">:model</span>
+
+  <span class="n">schema</span> <span class="sd">"</span><span class="s2">trucks"</span> <span class="k">do</span>
+    <span class="n">field</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:string</span>
+    <span class="n">field</span> <span class="ss">:lat</span><span class="p">,</span> <span class="ss">:float</span>
+    <span class="n">field</span> <span class="ss">:lng</span><span class="p">,</span> <span class="ss">:float</span>
+    <span class="n">field</span> <span class="ss">:image</span><span class="p">,</span> <span class="ss">:string</span>
+    <span class="n">field</span> <span class="ss">:menu</span><span class="p">,</span> <span class="p">{</span><span class="ss">:array</span><span class="p">,</span> <span class="ss">:string</span><span class="p">}</span>
+    <span class="n">field</span> <span class="ss">:status</span><span class="p">,</span> <span class="ss">:boolean</span><span class="p">,</span> <span class="ss">default:</span> <span class="no">false</span>
+    <span class="n">field</span> <span class="ss">:categories</span><span class="p">,</span> <span class="p">{</span><span class="ss">:array</span><span class="p">,</span> <span class="ss">:string</span><span class="p">}</span>
+    <span class="n">belongs_to</span> <span class="ss">:user</span><span class="p">,</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">User</span>
+
+    <span class="n">timestamps</span>
+  <span class="k">end</span>
+
+  <span class="nv">@required_fields</span> <span class="err">~</span><span class="n">w</span><span class="p">(</span><span class="n">name</span> <span class="n">lat</span> <span class="n">lng</span> <span class="n">categories</span><span class="p">)</span>
+  <span class="nv">@optional_fields</span> <span class="err">~</span><span class="n">w</span><span class="p">(</span><span class="n">status</span> <span class="n">menu</span> <span class="n">image</span><span class="p">)</span>
+
+  <span class="nv">@doc</span> <span class="sd">"""
+  Creates a changeset based on the `model` and `params`.
+
+  If no params are provided, an invalid changeset is returned
+  with no validation performed.
+  """</span>
+  <span class="k">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="ss">:empty</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">model</span>
+    <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nv">@required_fields</span><span class="p">,</span> <span class="nv">@optional_fields</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>We must add a has_one relationship to the User model as well.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/models/user.ex</span>
+
+<span class="n">schema</span> <span class="sd">"</span><span class="s2">users"</span> <span class="k">do</span>
+  <span class="n">field</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:string</span>
+  <span class="n">field</span> <span class="ss">:email</span><span class="p">,</span> <span class="ss">:string</span>
+  <span class="n">field</span> <span class="ss">:password</span><span class="p">,</span> <span class="ss">:string</span>
+  <span class="n">field</span> <span class="ss">:password_hash</span><span class="p">,</span> <span class="ss">:string</span>
+  <span class="n">has_one</span> <span class="ss">:truck</span><span class="p">,</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">Truck</span>
+
+  <span class="n">timestamps</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Open up the router and add our new trucks resource.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/router.ex</span>
+
+<span class="n">scope</span> <span class="sd">"</span><span class="s2">/api"</span><span class="p">,</span> <span class="no">Chowmonger</span> <span class="k">do</span>
+  <span class="n">pipe_through</span> <span class="ss">:api</span>
+
+  <span class="n">scope</span> <span class="sd">"</span><span class="s2">/v1"</span><span class="p">,</span> <span class="ss">alias:</span> <span class="no">API</span><span class="o">.</span><span class="no">V1</span> <span class="k">do</span>
+    <span class="n">resources</span> <span class="sd">"</span><span class="s2">users"</span><span class="p">,</span> <span class="no">UserController</span><span class="p">,</span> <span class="ss">only:</span> <span class="p">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:show</span><span class="p">]</span>
+    <span class="n">resources</span> <span class="sd">"</span><span class="s2">trucks"</span><span class="p">,</span> <span class="no">TruckController</span><span class="p">,</span> <span class="ss">only:</span> <span class="p">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="ss">:update</span><span class="p">]</span>
+    <span class="n">post</span> <span class="sd">"</span><span class="s2">token"</span><span class="p">,</span> <span class="no">TokenController</span><span class="p">,</span> <span class="ss">:create</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>In the Truck Controller we need to do the following:</p>
+<ul>
+ <li>- Add Guardian.Plug.EnsureAuthenticated plug</li>
+ <li>- Change the scrub_params to "data" to match json-api standard</li>
+ <li>- Change the update/2 params to match json-api standard</li>
+ <li>- Remove all http verbs except show/2, index/2 and update/2</li>
+</ul>
+
+<pre class="highlight elixir"><code><span class="c1">#web/controllers/api/v1/truck_controller.ex</span>
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TruckController</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Web</span><span class="p">,</span> <span class="ss">:controller</span>
+
+  <span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">Truck</span>
+  <span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Repo</span>
+  <span class="n">alias</span> <span class="no">Guardian</span><span class="o">.</span><span class="no">Plug</span><span class="o">.</span><span class="no">EnsurePermissions</span>
+
+  <span class="n">plug</span> <span class="no">EnsurePermissions</span><span class="p">,</span> <span class="p">[</span><span class="ss">handler:</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TokenController</span><span class="p">]</span> <span class="ow">when</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="ss">:update</span><span class="p">]</span>
+
+  <span class="n">plug</span> <span class="ss">:scrub_params</span><span class="p">,</span> <span class="sd">"</span><span class="s2">data"</span> <span class="ow">when</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="ss">:update</span><span class="p">]</span>
+
+  <span class="k">def</span> <span class="n">index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">trucks</span> <span class="o">=</span> <span class="no">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="no">Truck</span><span class="p">)</span>
+    <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">index.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">trucks</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">show</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">id"</span> <span class="o">=&gt;</span> <span class="n">id</span><span class="p">})</span> <span class="k">do</span>
+    <span class="n">truck</span> <span class="o">=</span> <span class="no">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p">(</span><span class="no">Truck</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span>
+    <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">show.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">truck</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">update</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">data"</span> <span class="o">=&gt;</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">attributes"</span> <span class="o">=&gt;</span> <span class="n">truck_params</span><span class="p">},</span> <span class="sd">"</span><span class="s2">id"</span> <span class="o">=&gt;</span> <span class="n">id</span><span class="p">})</span> <span class="k">do</span>
+    <span class="n">truck</span> <span class="o">=</span> <span class="no">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p">(</span><span class="no">Truck</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span>
+    <span class="n">changeset</span> <span class="o">=</span> <span class="no">Truck</span><span class="o">.</span><span class="n">changeset</span><span class="p">(</span><span class="n">truck</span><span class="p">,</span> <span class="n">truck_params</span><span class="p">)</span>
+
+    <span class="k">case</span> <span class="no">Repo</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span>
+      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">truck</span><span class="p">}</span> <span class="o">-&gt;</span>
+        <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">show.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">truck</span><span class="p">)</span>
+      <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">changeset</span><span class="p">}</span> <span class="o">-&gt;</span>
+        <span class="n">conn</span>
+        <span class="o">|&gt;</span> <span class="n">put_status</span><span class="p">(</span><span class="ss">:unprocessable_entity</span><span class="p">)</span>
+        <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="no">Chowmonger</span><span class="o">.</span><span class="no">ChangesetView</span><span class="p">,</span> <span class="sd">"</span><span class="s2">error.json"</span><span class="p">,</span> <span class="ss">changeset:</span> <span class="n">changeset</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Edit the Truck view to use ja_serializer</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/views/api/v1/truck_view.ex</span>
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TruckView</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Web</span><span class="p">,</span> <span class="ss">:view</span>
+
+  <span class="n">attributes</span> <span class="p">[</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:lat</span><span class="p">,</span> <span class="ss">:lng</span><span class="p">,</span> <span class="ss">:image</span><span class="p">,</span> <span class="ss">:menu</span><span class="p">,</span> <span class="ss">:categories</span><span class="p">,</span> <span class="ss">:status</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Before we migrate let's change seeds.ex to add some trucks to the mix.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#priv/repo/seeds.exs</span>
+<span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Repo</span>
+<span class="n">alias</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">User</span>
+
+<span class="n">user</span> <span class="o">=</span> <span class="p">%{</span> <span class="ss">name:</span> <span class="sd">"</span><span class="s2">Admin"</span><span class="p">,</span> <span class="ss">email:</span> <span class="sd">"</span><span class="s2">admin@chowmonger.com"</span><span class="p">,</span> <span class="ss">password:</span> <span class="sd">"</span><span class="s2">password"</span> <span class="p">}</span>
+
+<span class="n">truck</span> <span class="o">=</span> <span class="p">%{</span>
+           <span class="ss">name:</span> <span class="sd">"</span><span class="s2">Jim Bob's Shrimp Stand"</span><span class="p">,</span>
+           <span class="ss">lat:</span> <span class="m">41.8820989</span><span class="p">,</span>
+           <span class="ss">lng:</span> <span class="o">-</span><span class="m">87.6242104</span><span class="p">,</span>
+           <span class="ss">image:</span> <span class="sd">"</span><span class="s2">https://upload.wikimedia.org/wikipedia/commons/8/8d/Seattle_-_Maximus_Minimus_food_truck_03.jpg"</span><span class="p">,</span>
+           <span class="ss">menu:</span> <span class="p">[</span><span class="sd">"</span><span class="s2">Shrimp Stew"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Shrimp Gumbo"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Shrimp Kabob"</span><span class="p">],</span>
+           <span class="ss">categories:</span> <span class="p">[</span><span class="sd">"</span><span class="s2">Creole"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Southern"</span><span class="p">],</span>
+           <span class="ss">status:</span> <span class="no">true</span>
+         <span class="p">}</span>
+
+<span class="n">truck2</span> <span class="o">=</span> <span class="p">%{</span>
+            <span class="ss">name:</span> <span class="sd">"</span><span class="s2">Don't Nuts"</span><span class="p">,</span>
+            <span class="ss">lat:</span> <span class="m">41.8830989</span><span class="p">,</span>
+            <span class="ss">lng:</span> <span class="o">-</span><span class="m">87.6442104</span><span class="p">,</span>
+            <span class="ss">image:</span> <span class="sd">"</span><span class="s2">https://upload.wikimedia.org/wikipedia/commons/e/e5/Claire_et_Hugo_food_truck.JPG"</span><span class="p">,</span>
+            <span class="ss">menu:</span> <span class="p">[</span><span class="sd">"</span><span class="s2">Crispy Nuts"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Salty Nuts"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Sweet Nuts"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Spicy Nuts"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Mixed Nuts"</span><span class="p">],</span>
+            <span class="ss">categories:</span> <span class="p">[</span><span class="sd">"</span><span class="s2">Nuts... what else?"</span><span class="p">],</span>
+            <span class="ss">status:</span> <span class="no">true</span>
+          <span class="p">}</span>
+
+<span class="n">truck3</span> <span class="o">=</span> <span class="p">%{</span>
+            <span class="ss">name:</span> <span class="sd">"</span><span class="s2">Burgers and Peaches"</span><span class="p">,</span>
+            <span class="ss">lat:</span> <span class="m">41.8720989</span><span class="p">,</span>
+            <span class="ss">lng:</span> <span class="o">-</span><span class="m">87.6212104</span><span class="p">,</span>
+            <span class="ss">image:</span> <span class="sd">"</span><span class="s2">https://upload.wikimedia.org/wikipedia/commons/e/e3/Food_truck_in_London.jpg"</span><span class="p">,</span>
+            <span class="ss">categories:</span> <span class="p">[</span><span class="sd">"</span><span class="s2">Beef"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Fruit"</span><span class="p">],</span>
+            <span class="ss">menu:</span> <span class="p">[</span><span class="sd">"</span><span class="s2">The Peachy Burger"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">Poached Peaches a la mode"</span><span class="p">],</span>
+            <span class="ss">status:</span> <span class="no">true</span>
+          <span class="p">}</span>
+
+<span class="no">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="no">User</span><span class="p">{},</span> <span class="n">user</span><span class="p">)</span>
+<span class="o">|&gt;</span> <span class="no">Repo</span><span class="o">.</span><span class="n">insert!</span>
+<span class="o">|&gt;</span> <span class="no">Ecto</span><span class="o">.</span><span class="n">build_assoc</span><span class="p">(</span><span class="ss">:truck</span><span class="p">,</span> <span class="n">truck</span><span class="p">)</span>
+<span class="o">|&gt;</span> <span class="no">Repo</span><span class="o">.</span><span class="n">insert!</span>
+
+<span class="no">Repo</span><span class="o">.</span><span class="n">one</span><span class="p">(</span><span class="no">User</span><span class="p">)</span>
+<span class="o">|&gt;</span> <span class="no">Ecto</span><span class="o">.</span><span class="n">build_assoc</span><span class="p">(</span><span class="ss">:truck</span><span class="p">,</span> <span class="n">truck2</span><span class="p">)</span>
+<span class="o">|&gt;</span> <span class="no">Repo</span><span class="o">.</span><span class="n">insert!</span>
+
+<span class="no">Repo</span><span class="o">.</span><span class="n">one</span><span class="p">(</span><span class="no">User</span><span class="p">)</span>
+<span class="o">|&gt;</span> <span class="no">Ecto</span><span class="o">.</span><span class="n">build_assoc</span><span class="p">(</span><span class="ss">:truck</span><span class="p">,</span> <span class="n">truck3</span><span class="p">)</span>
+<span class="o">|&gt;</span> <span class="no">Repo</span><span class="o">.</span><span class="n">insert!</span>
+</code></pre>
+
+<p>Instead of migrating we should drop our database and set up a fresh one. Launch
+the server so we can throw a request at it.</p>
+
+<pre class="highlight shell"><code>mix ecto.drop <span class="o">&amp;&amp;</span> mix ecto.setup
+mix phoenix.server
+curl -X GET -H <span class="s2">"Content-Type: application/vnd.api+json"</span> <span class="s2">"http://localhost:4000/api/v1/trucks"</span>
+</code></pre>
+
+<p>If we didn't forget a step you should get this back.</p>
+
+<pre class="highlight javascript"><code><span class="p">{</span>
+  <span class="s2">"jsonapi"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="s2">"version"</span><span class="err">:</span> <span class="s2">"1.0"</span>
+  <span class="p">},</span>
+    <span class="s2">"data"</span><span class="err">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"truck"</span><span class="p">,</span>
+      <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span>
+      <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Jim Bob's Shrimp Stand"</span><span class="p">,</span>
+        <span class="s2">"menu"</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s2">"Shrimp Stew"</span><span class="p">,</span>
+          <span class="s2">"Shrimp Gumbo"</span><span class="p">,</span>
+          <span class="s2">"Shrimp Kabob"</span>
+        <span class="p">],</span>
+        <span class="s2">"lng"</span><span class="p">:</span> <span class="o">-</span><span class="mf">87.6242104</span><span class="p">,</span>
+        <span class="s2">"lat"</span><span class="p">:</span> <span class="mf">41.8820989</span><span class="p">,</span>
+        <span class="s2">"image"</span><span class="p">:</span> <span class="s2">"https://upload.wikimedia.org/wikipedia/commons/8/8d/Seattle_-_Maximus_Minimus_food_truck_03.jpg"</span><span class="p">,</span>
+        <span class="s2">"categories"</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"Creole"</span><span class="p">,</span> <span class="s2">"Southern"</span> <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"truck"</span><span class="p">,</span>
+      <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"2"</span><span class="p">,</span>
+      <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Don't Nuts"</span><span class="p">,</span>
+        <span class="s2">"menu"</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s2">"Crispy Nuts"</span><span class="p">,</span>
+          <span class="s2">"Salty Nuts"</span><span class="p">,</span>
+          <span class="s2">"Sweet Nuts"</span><span class="p">,</span>
+          <span class="s2">"Spicy Nuts"</span><span class="p">,</span>
+          <span class="s2">"Mixed Nuts"</span>
+        <span class="p">],</span>
+        <span class="s2">"lng"</span><span class="p">:</span> <span class="o">-</span><span class="mf">87.6442104</span><span class="p">,</span>
+        <span class="s2">"lat"</span><span class="p">:</span> <span class="mf">41.8830989</span><span class="p">,</span>
+        <span class="s2">"image"</span><span class="p">:</span> <span class="s2">"https://upload.wikimedia.org/wikipedia/commons/e/e5/Claire_et_Hugo_food_truck.JPG"</span><span class="p">,</span>
+        <span class="s2">"categories"</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"Nuts... what else?"</span> <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"truck"</span><span class="p">,</span>
+      <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"3"</span><span class="p">,</span>
+      <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Burgers and Peaches"</span><span class="p">,</span>
+        <span class="s2">"menu"</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"The Peachy Burger"</span><span class="p">,</span> <span class="s2">"Poached Peaches a la mode"</span> <span class="p">],</span>
+        <span class="s2">"lng"</span><span class="p">:</span> <span class="o">-</span><span class="mf">87.6212104</span><span class="p">,</span>
+        <span class="s2">"lat"</span><span class="p">:</span> <span class="mf">41.8720989</span><span class="p">,</span>
+        <span class="s2">"image"</span><span class="p">:</span> <span class="s2">"https://upload.wikimedia.org/wikipedia/commons/e/e3/Food_truck_in_London.jpg"</span><span class="p">,</span>
+        <span class="s2">"categories"</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"Beef"</span><span class="p">,</span> <span class="s2">"Fruit"</span> <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>One of the main goals of this tutorial is to demonstrate Phoenix channels in
+EmberJS.  Let's do that.</p>
+
+<p>Generate a new channel for our trucks.</p>
+
+<pre class="highlight shell"><code>mix phoenix.gen.channel Truck trucks
+</code></pre>
+
+<p>Add our new channel to the user socket.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/channels/user_socket.ex</span>
+<span class="n">channel</span> <span class="sd">"</span><span class="s2">trucks"</span><span class="p">,</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TruckChannel</span>
+</code></pre>
+
+<p>Edit the new Truck channel.  Since we only need 'rooms' we can remove the :lobby
+default in join/3.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/channels/truck_channel.ex</span>
+<span class="k">def</span> <span class="n">join</span><span class="p">(</span><span class="sd">"</span><span class="s2">trucks"</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+  <span class="k">if</span> <span class="n">authorized?</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span>
+  <span class="k">else</span>
+    <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="p">%{</span><span class="ss">reason:</span> <span class="sd">"</span><span class="s2">unauthorized"</span><span class="p">}}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>We can delete the handle_in functions since we are only broadcasting data out to
+users.  We should be left with the module below.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/channels/truck_channel.ex</span>
+<span class="k">defmodule</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">API</span><span class="o">.</span><span class="no">V1</span><span class="o">.</span><span class="no">TruckChannel</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Web</span><span class="p">,</span> <span class="ss">:channel</span>
+
+  <span class="k">def</span> <span class="n">join</span><span class="p">(</span><span class="sd">"</span><span class="s2">trucks"</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">if</span> <span class="n">authorized?</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="k">do</span>
+      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span>
+    <span class="k">else</span>
+      <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="p">%{</span><span class="ss">reason:</span> <span class="sd">"</span><span class="s2">unauthorized"</span><span class="p">}}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c1"># This is invoked every time a notification is being broadcast</span>
+  <span class="c1"># to the client. The default implementation is just to push it</span>
+  <span class="c1"># downstream but one could filter or change the event.</span>
+  <span class="k">def</span> <span class="n">handle_out</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">push</span> <span class="n">socket</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">payload</span>
+    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span>
+  <span class="k">end</span>
+
+  <span class="c1"># Add authorization logic here as required.</span>
+  <span class="k">defp</span> <span class="n">authorized?</span><span class="p">(</span><span class="n">_payload</span><span class="p">)</span> <span class="k">do</span>
+    <span class="no">true</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Now we have a channel that our client can connect to.  The plan is to have a map
+that updates when a Truck moves locations.  This way users always have the most
+up to date information.</p>
+
+<p>Since we want to notify the client when our Truck data changes, we can do this in
+our Truck controllers update/2. Ember Data will make it easy for us to update
+our Trucks using the store's findRecord method. We'll need respond with the id
+of the truck that updates to use said method.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/controllers/api/v1/truck_controller.ex</span>
+<span class="k">def</span> <span class="n">update</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">data"</span> <span class="o">=&gt;</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">attributes"</span> <span class="o">=&gt;</span> <span class="n">truck_params</span><span class="p">},</span> <span class="sd">"</span><span class="s2">id"</span> <span class="o">=&gt;</span> <span class="n">id</span><span class="p">})</span> <span class="k">do</span>
+  <span class="n">truck</span> <span class="o">=</span> <span class="no">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p">(</span><span class="no">Truck</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span>
+  <span class="n">changeset</span> <span class="o">=</span> <span class="no">Truck</span><span class="o">.</span><span class="n">changeset</span><span class="p">(</span><span class="n">truck</span><span class="p">,</span> <span class="n">truck_params</span><span class="p">)</span>
+
+  <span class="k">case</span> <span class="no">Repo</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">truck</span><span class="p">}</span> <span class="o">-&gt;</span>
+      <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Endpoint</span><span class="o">.</span><span class="n">broadcast_from!</span> <span class="n">self</span><span class="p">(),</span> <span class="sd">"</span><span class="s2">trucks"</span><span class="p">,</span> <span class="sd">"</span><span class="s2">change"</span><span class="p">,</span> <span class="p">%{</span><span class="sd">"</span><span class="s2">id"</span> <span class="o">=&gt;</span> <span class="n">id</span><span class="p">}</span>
+      <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">show.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">truck</span><span class="p">)</span>
+    <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">changeset</span><span class="p">}</span> <span class="o">-&gt;</span>
+      <span class="n">conn</span>
+      <span class="o">|&gt;</span> <span class="n">put_status</span><span class="p">(</span><span class="ss">:unprocessable_entity</span><span class="p">)</span>
+      <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="no">Chowmonger</span><span class="o">.</span><span class="no">ChangesetView</span><span class="p">,</span> <span class="sd">"</span><span class="s2">error.json"</span><span class="p">,</span> <span class="ss">changeset:</span> <span class="n">changeset</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>We use broadcast_from to send the event "change" to all subscribers.  We'll be
+watching this event in our client.</p>
+
+<p>In order for our Ember client to connect to our API we'll have to enable
+<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a>.
+We can do that easily with <a href="https://github.com/mschae/cors_plug">cors_plug</a>. Add
+it as a dependency and plug it into our endpoint just before the router.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#mix.exs</span>
+<span class="k">defp</span> <span class="n">deps</span> <span class="k">do</span> <span class="p">[{</span><span class="ss">:phoenix</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.1.3"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_ecto</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 2.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:postgrex</span><span class="p">,</span> <span class="sd">"</span><span class="s2">&gt;= 0.0.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_html</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 2.3"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:phoenix_live_reload</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.0"</span><span class="p">,</span> <span class="ss">only:</span> <span class="ss">:dev</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:gettext</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.9"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:ja_serializer</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.8.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:comeonin</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 2.1.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:guardian</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 0.10.0"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:cors_plug</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.1.1"</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="sd">"</span><span class="s2">~&gt; 1.0"</span><span class="p">}]</span>
+<span class="k">end</span>
+
+<span class="c1">#lib/chowmonger/endpoint.ex</span>
+  <span class="o">...</span>
+
+  <span class="n">plug</span> <span class="no">CORSPlug</span>
+  <span class="n">plug</span> <span class="no">Chowmonger</span><span class="o">.</span><span class="no">Router</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>Run mix deps.get per usual.</p>
+
+<h1 id="emberjs">EmberJS</h1>
+
+<p>Alright now we're ready to create our Ember app! Run the ember new generator and
+then install a few libraries that we'll be using. For authentication we're using
+ember-simple-auth. To have easy access to phoenix.js, a client side library to
+Phoenix channels, we're using ember-phoenix.  We'll also need a sass compiler
+since we'll be using that instead of vanilla css.</p>
+
+<pre class="highlight shell"><code>ember new truckn-ember
+<span class="nb">cd </span>truckn-ember
+ember install ember-simple-auth ember-phoenix ember-cli-sass
+</code></pre>
+
+<p>I'm using thoughtbot's bourbon and neat for some styling help so lets add that to
+bower.json.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//bower.json</span>
+<span class="p">{</span>
+  <span class="s2">"name"</span><span class="err">:</span> <span class="s2">"chowmonger-ember"</span><span class="p">,</span>
+  <span class="s2">"dependencies"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="s2">"ember"</span><span class="err">:</span> <span class="s2">"~2.4.3"</span><span class="p">,</span>
+    <span class="s2">"ember-cli-shims"</span><span class="err">:</span> <span class="s2">"0.1.1"</span><span class="p">,</span>
+    <span class="s2">"ember-cli-test-loader"</span><span class="err">:</span> <span class="s2">"0.2.2"</span><span class="p">,</span>
+    <span class="s2">"ember-qunit-notifications"</span><span class="err">:</span> <span class="s2">"0.1.0"</span><span class="p">,</span>
+    <span class="s2">"bourbon"</span><span class="err">:</span> <span class="s2">"^4.2.6"</span><span class="p">,</span>
+    <span class="s2">"neat"</span><span class="err">:</span> <span class="s2">"^1.7.4"</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>We'll need to edit ember-cli-build.json to include bourbon and neat's stylesheets.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//ember-cli-build.js</span>
+<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EmberApp</span><span class="p">(</span><span class="nx">defaults</span><span class="p">,</span> <span class="p">{</span>
+  <span class="na">sassOptions</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">includePaths</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s1">'bower_components/bourbon/app/assets/stylesheets'</span><span class="p">,</span>
+      <span class="s1">'bower_components/neat/app/assets/stylesheets'</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>I won't be going over any styling in this tutorial.  You can use my
+<a href="TODO">stylesheets</a> to make the rest of this tutorial a bit more streamlined.
+I'm no designer so I apologize if your eyes bleed.</p>
+
+<p>ember-cli-sass looks for app.scss and right now we have app.css.  Go ahead and
+rename that if you're <strong>not</strong> using my stylesheets.</p>
+
+<pre class="highlight shell"><code>mv app/styles/app.css app/styles/app.scss
+</code></pre>
+
+<p>At this point load up the server.</p>
+
+<pre class="highlight shell"><code>ember s
+</code></pre>
+
+<p>Open http://localhost:4200 in your browser.  You should see 'Welcome to Ember'.
+You can change the port in .ember-cli if you wish.</p>
+
+<p>For security we'll only allow ourselves and our API as sources for XHR and
+WebSockets, we'll specify that in config/environment.js. You can read about CSP
+<a href="https://developer.mozilla.org/en-US/docs/Web/Security/CSP/CSP_policy_directives">here</a>.</p>
+
+<p>While editing environment.js, add some configuration for
+ember-simple-auth.  We'll be creating our own authorizer to use JWT.  Then set
+the auth routes since they default to index and map will serve as our root for
+this tutorial.  I'm setting these ENV's in development since they'll likely be
+different for production.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//config/environment.js</span>
+<span class="nx">ENV</span><span class="p">.</span><span class="nx">contentSecurityPolicy</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">'connect-src'</span><span class="p">:</span> <span class="p">[</span><span class="s2">"'self'"</span><span class="p">,</span> <span class="s2">"http://localhost:4000"</span><span class="p">]</span>
+<span class="p">},</span>
+<span class="nx">ENV</span><span class="p">[</span><span class="s1">'simple-auth'</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">authorizer</span><span class="p">:</span> <span class="s1">'authorizer:custom'</span><span class="p">,</span>
+  <span class="na">crossOriginWhitelist</span><span class="p">:</span> <span class="p">[</span><span class="s1">'http://localhost:4000/'</span><span class="p">],</span>
+  <span class="na">authenticationRoute</span><span class="p">:</span> <span class="s1">'map.panel.settings'</span><span class="p">,</span>
+  <span class="na">routeAfterAuthentication</span><span class="p">:</span> <span class="s1">'map.panel.settings'</span><span class="p">,</span>
+  <span class="na">routeIfAlreadyAuthenticated</span><span class="p">:</span> <span class="s1">'map.panel.settings'</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Now to introduce the map.  The map will be the main focus of this application.
+I initially went with google maps and had a good amount of success.  However I
+recently discovered <a href="http://www.leafletjs.com">Leaflet</a>, a tiny open-source and
+mobile-friendly library.  And to my surprise there exists a nifty Ember
+addon for Leaflet: <a href="http://www.ember-leaflet.com/">ember-leaflet</a>.</p>
+
+<p>We can go ahead and install ember-leaflet, and then generate a new route for our
+map.</p>
+
+<pre class="highlight shell"><code>ember install ember-leaflet
+ember g route map
+</code></pre>
+
+<p>Open the new map.hbs template and replace the contents with this:</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map.hbs--&gt;</span>
+<span class="k">{{#</span><span class="nn">leaflet-map</span> <span class="nv">lat</span><span class="o">=</span><span class="nv">lat</span> <span class="nv">lng</span><span class="o">=</span><span class="nv">lng</span> <span class="nv">zoom</span><span class="o">=</span><span class="nv">zoom</span> <span class="nv">dragging</span><span class="o">=</span><span class="kc">true</span> <span class="nv">zoomControl</span><span class="o">=</span><span class="kc">false</span><span class="k">}}</span>
+  <span class="k">{{</span><span class="nv">tile-layer</span> <span class="nv">url</span><span class="o">=</span><span class="s2">"https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"</span><span class="k">}}</span>
+<span class="k">{{/</span><span class="nn">leaflet-map</span><span class="k">}}</span>
+
+<span class="k">{{</span><span class="nv">outlet</span><span class="k">}}</span>
+</code></pre>
+
+<p>The wonderful thing about ember-leaflet is that it truly adopts the Ember way by
+making every aspect of the map a component whose attributes we can easily
+change.  The above template assumes that we have lat, lng, and zoom as
+properties in our map controller.  We don't have a controller for our map
+route yet so let's create that.</p>
+
+<pre class="highlight shell"><code>ember g controller map
+</code></pre>
+
+<p>Controllers in Ember are on their way
+<a href="https://guides.emberjs.com/v2.5.0/controllers/">out</a>.  However they're still
+used to declare properties that don't belong to a model, at least until routable
+components.  The lat, lng, and zoom properties will serve as defaults and will be
+updated by geolocation and user input. I'm setting Chicago as the default.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/controllers/map.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">lat</span><span class="p">:</span> <span class="mf">41.881832</span><span class="p">,</span>
+  <span class="na">lng</span><span class="p">:</span> <span class="o">-</span><span class="mf">87.623177</span><span class="p">,</span>
+  <span class="na">zoom</span><span class="p">:</span> <span class="mi">14</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>Go ahead and remove the Welcome to Ember message in application.hbs and pull up
+http://localhost:4200/map.  If you're using my stylesheets you should see a map
+spanning the entire browser window.</p>
+
+<p>Now it's time to add our truck model.</p>
+
+<pre class="highlight shell"><code>ember g model truck name lat lng image menu categories status user
+</code></pre>
+
+<pre class="highlight javascript"><code><span class="c1">//app/models/truck.js</span>
+<span class="kr">import</span> <span class="nx">DS</span> <span class="nx">from</span> <span class="s1">'ember-data'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">name</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">lat</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">lng</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">image</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">menu</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'array'</span><span class="p">),</span>
+  <span class="na">categories</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'array'</span><span class="p">),</span>
+  <span class="na">status</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">()</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>The generated model doesn't import ember-data directly, but I find it a bit
+cleaner to do so.  We'll be using a custom transform to handle the arrays
+used for menu and categories.  I don't think this is the best solution, but it
+works for this example.  Thanks to Samsinite for the handy transform.</p>
+
+<pre class="highlight shell"><code>ember g transform array
+</code></pre>
+
+<pre class="highlight javascript"><code><span class="c1">//app/transforms/array.js</span>
+
+<span class="c1">//https://gist.github.com/Samsinite/b775f3f0ce1a02a37424</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="nx">DS</span> <span class="nx">from</span> <span class="s1">'ember-data'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Transform</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">serialize</span><span class="p">(</span><span class="nx">deserialized</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">!!</span><span class="nx">deserialized</span> <span class="p">?</span> <span class="nx">deserialized</span><span class="p">.</span><span class="nx">toArray</span><span class="p">()</span> <span class="p">:</span> <span class="kc">null</span><span class="p">;</span>
+  <span class="p">},</span>
+  <span class="nx">deserialize</span><span class="p">(</span><span class="nx">serialized</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">A</span><span class="p">(</span><span class="nx">serialized</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>By specifying a model in Ember we're laying out a schema for our Truck that
+Ember expects to get from our API.  EmberJS uses the JSONAPIAdapter by default
+which expects exactly the same format that our API is using (jsonapi.org).  The
+beauty of standards!  We'll need to add an adapter so we can specify our
+namespaced endpoint.</p>
+
+<pre class="highlight shell"><code>ember g adapter application
+</code></pre>
+
+<p>Edit to include the host and namespace of the API.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/adapters/application.js</span>
+<span class="kr">import</span> <span class="nx">JSONAPIAdapter</span> <span class="nx">from</span> <span class="s1">'ember-data/adapters/json-api'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">JSONAPIAdapter</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">host</span><span class="p">:</span> <span class="s1">'http://localhost:4000'</span><span class="p">,</span>
+  <span class="na">namespace</span><span class="p">:</span> <span class="s1">'api/v1'</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>With the adapter set up all we need to do now is specify the model we wish to
+use in our map route.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/routes/map.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">findAll</span><span class="p">(</span><span class="s1">'truck'</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>The code above says to set the model to the specified query.  In this case it is
+querying for all trucks.  This is translated to a get request on
+host/namespace/trucks.  If the request is successful the data returned is loaded
+into the Ember data store and makes it available to our map route.</p>
+
+<p>Ember has a set of handy dev
+<a href="https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi">tools</a>
+available for most browsers.  I highly recommend installing it!</p>
+
+<p>Now that our data is accessible from the template we can start droppin pins.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map.hbs--&gt;</span>
+<span class="k">{{#</span><span class="nn">leaflet-map</span> <span class="nv">lat</span><span class="o">=</span><span class="nv">lat</span> <span class="nv">lng</span><span class="o">=</span><span class="nv">lng</span> <span class="nv">zoom</span><span class="o">=</span><span class="nv">zoom</span> <span class="nv">dragging</span><span class="o">=</span><span class="kc">true</span> <span class="nv">zoomControl</span><span class="o">=</span><span class="kc">false</span><span class="k">}}</span>
+  <span class="k">{{</span><span class="nv">tile-layer</span> <span class="nv">url</span><span class="o">=</span><span class="s2">"https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"</span><span class="k">}}</span>
+  <span class="k">{{#</span><span class="nn">each</span> <span class="nv">model</span> <span class="nv">as</span> <span class="err">|</span><span class="nv">truck</span><span class="err">|</span><span class="k">}}</span>
+    <span class="k">{{#</span><span class="nn">marker-layer</span> <span class="nv">lat</span><span class="o">=</span><span class="nv">truck</span><span class="p">.</span><span class="nv">lat</span> <span class="nv">lng</span><span class="o">=</span><span class="nv">truck</span><span class="p">.</span><span class="nv">lng</span><span class="k">}}</span>
+      <span class="k">{{</span><span class="nv">truck</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span>
+    <span class="k">{{/</span><span class="nn">marker-layer</span><span class="k">}}</span>
+  <span class="k">{{/</span><span class="nn">each</span><span class="k">}}</span>
+<span class="k">{{/</span><span class="nn">leaflet-map</span><span class="k">}}</span>
+
+<span class="k">{{</span><span class="nv">outlet</span><span class="k">}}</span>
+</code></pre>
+
+<p>You should now be able to see our first trucks on the map! The marker-layer
+component yields to allow us to pass in the truck name.  Yeah, Ember is awesome.</p>
+
+<p>Next we'll generate a few new routes. We'll be implementing a search feature as
+well as a panel that will hold information about our trucks.  I'm taking huge
+design hints from Google Maps (thanks!).</p>
+
+<pre class="highlight shell"><code>ember g route map/panel
+ember g route map/panel/truck
+</code></pre>
+
+<p>Ember is really great for nested routes.  Our panel will sit on top of our map
+and contain a search bar.  The truck route will display a selected truck's
+information on the panel. Open the router.js file to make a modification to our
+routes.</p>
+
+<pre class="highlight javascript"><code><span class="err">#</span><span class="nx">app</span><span class="o">/</span><span class="nx">router</span><span class="p">.</span><span class="nx">js</span>
+<span class="nx">Router</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">'map'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">'panel'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">'truck'</span><span class="p">,</span> <span class="p">{</span><span class="na">path</span><span class="p">:</span> <span class="s1">'/:truck_id'</span><span class="p">});</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>Add fontawesome to our index.html if you're using my stylesheets.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/index.html--&gt;</span>
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">"X-UA-Compatible"</span> <span class="na">content=</span><span class="s">"IE=edge"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Chowmonger<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"description"</span> <span class="na">content=</span><span class="s">""</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"viewport"</span> <span class="na">content=</span><span class="s">"width=device-width, initial-scale=1"</span><span class="nt">&gt;</span>
+
+    <span class="k">{{</span><span class="nv">content-for</span> <span class="s2">"head"</span><span class="k">}}</span>
+
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"assets/vendor.css"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"assets/chowmonger-ember.css"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"</span><span class="nt">&gt;</span>
+
+    <span class="k">{{</span><span class="nv">content-for</span> <span class="s2">"head-footer"</span><span class="k">}}</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="k">{{</span><span class="nv">content-for</span> <span class="s2">"body"</span><span class="k">}}</span>
+
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"assets/vendor.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"assets/chowmonger-ember.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+
+    <span class="k">{{</span><span class="nv">content-for</span> <span class="s2">"body-footer"</span><span class="k">}}</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre>
+
+<p>Next we'll edit our panel.hbs.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map/panel.hbs--&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"panel"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"bars"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-cog"</span><span class="nt">&gt;&lt;/i&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"search"</span><span class="nt">&gt;</span>
+    <span class="k">{{</span><span class="nv">input</span> <span class="nv">focus-in</span><span class="o">=</span><span class="s1">'focused'</span> <span class="nv">escape-press</span><span class="o">=</span><span class="s1">'clearName'</span> <span class="nv">value</span><span class="o">=</span><span class="nv">name</span> <span class="nv">id</span><span class="o">=</span><span class="s2">"sb"</span> <span class="nv">placeholder</span><span class="o">=</span><span class="s2">"Feed me..."</span><span class="k">}}</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"search-icon-container"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"search-icon fa fa-times"</span> <span class="k">{{</span><span class="nv">action</span> <span class="s1">'clearName'</span><span class="k">}}</span><span class="nt">&gt;&lt;/i&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"results-box"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"results"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;ul&gt;</span>
+        <span class="k">{{#</span><span class="nn">each</span> <span class="nv">model</span> <span class="nv">as</span> <span class="err">|</span><span class="nv">t</span><span class="err">|</span><span class="k">}}</span>
+        <span class="nt">&lt;li&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"result-container"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"result-icon fa fa-heart-o"</span><span class="nt">&gt;&lt;/i&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"result"</span><span class="nt">&gt;</span><span class="k">{{</span><span class="nv">t</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span><span class="nt">&lt;/div&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/li&gt;</span>
+        <span class="k">{{/</span><span class="nn">each</span><span class="k">}}</span>
+      <span class="nt">&lt;/ul&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="k">{{</span><span class="nv">outlet</span><span class="k">}}</span>
+</code></pre>
+
+<p>We create an input box that has a value of name.  We'll be using this value
+to update query parameters and fetch results from our API.  This is a technique
+I learned from
+<a href="https://www.foraker.com/blog/creating-a-better-search-experience-with-ember">Foraker</a>.
+Each time the query parameters change we will force the model to update.  This
+will cause the results to only show trucks that match the query.  I think a
+better implementation would work with model data already loaded into the store,
+but I'm not sure how to do this yet.  Luckily Phoenix is fast and our data is
+small so it's not a huge deal right now.</p>
+
+<p>Let's add the logic to our search as well as a few actions. We'll need a
+controller for our panel.</p>
+
+<pre class="highlight shell"><code>ember g controller panel
+</code></pre>
+
+<pre class="highlight javascript"><code><span class="c1">//app/controllers/panel.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">queryParams</span><span class="p">:</span> <span class="p">[</span><span class="s1">'name'</span><span class="p">],</span>
+  <span class="na">name</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>The queryParams mixin tells our controller to accept the name parameter and the
+name property is what will hold our search string.  Next add the logic in the
+panel route.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/routes/map/panel.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">queryParams</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="p">{</span>
+      <span class="na">refreshModel</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="na">replace</span><span class="p">:</span> <span class="kc">true</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">model</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">name</span> <span class="o">===</span> <span class="s2">""</span> <span class="o">||</span> <span class="nx">params</span><span class="p">.</span><span class="nx">name</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="s1">'truck'</span><span class="p">,</span> <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="nx">params</span><span class="p">.</span><span class="nx">name</span> <span class="p">});</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nx">focused</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">'map.panel'</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="nx">clearName</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">search</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">controllerFor</span><span class="p">(</span><span class="s1">'map.panel'</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="nx">search</span> <span class="o">===</span> <span class="s2">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">'map'</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">controllerFor</span><span class="p">(</span><span class="s1">'map.panel'</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">);</span>
+        <span class="nx">Ember</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s1">'#sb'</span><span class="p">).</span><span class="nx">focus</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>The queryParams hash in the route allows us to configure 3 options.  Here we
+set our model to refresh on any change in the name parameter and not to add
+each change to the browser's history.  Both of these options default to false.
+We specify our model to take the params and query our API, returning no results
+if our parameter is empty or undefined.</p>
+
+<p>We add two actions: focused() and clearName().  We add focused() to our input,
+this will navigate to the panel route and give us a clear screen to search.
+This doesn't seem necessary now, but it will when we add our truck information.
+We also add clearName() to our input and the x icon.  This will clear the search
+parameters as well as focus the input thus calling focused() and giving us a
+clear screen.</p>
+
+<p>If we click the x while the input is empty we transition back to
+the map route.  This is a great way to free up some real estate on mobile. To
+give the user a way to get back to search we should keep an icon on the page.</p>
+
+<p>Edit our map template to add a search icon.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--map/templates/map.hbs--&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"panel"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"search-icon-container"</span><span class="nt">&gt;</span>
+    <span class="k">{{#</span><span class="nn">link-to</span> <span class="s1">'map.panel'</span><span class="k">}}</span>
+      <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"search-icon fa fa-search"</span><span class="nt">&gt;&lt;/i&gt;</span>
+    <span class="k">{{/</span><span class="nn">link-to</span><span class="k">}}</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+
+<p>If you test this search, you'll find that our API doesn't properly handle the
+request. That should be obvious since we haven't edited our index action to
+do so.  Let's do that now.</p>
+
+<pre class="highlight elixir"><code><span class="c1">#web/controllers/api/v1/truck_controller.ex</span>
+  <span class="o">...</span>
+
+  <span class="k">def</span> <span class="n">index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">trucks</span> <span class="o">=</span>
+      <span class="k">case</span> <span class="n">params</span> <span class="k">do</span>
+        <span class="p">%{</span><span class="sd">"</span><span class="s2">name"</span> <span class="o">=&gt;</span> <span class="n">name</span><span class="p">}</span> <span class="o">-&gt;</span>
+          <span class="no">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">from</span> <span class="n">t</span> <span class="ow">in</span> <span class="no">Truck</span><span class="p">,</span> <span class="ss">where:</span> <span class="n">ilike</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">^</span><span class="sd">"</span><span class="s2">%</span><span class="si">#{</span><span class="n">name</span><span class="si">}</span><span class="s2">%"</span><span class="p">))</span>
+        <span class="n">_</span> <span class="o">-&gt;</span>
+          <span class="no">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="no">Truck</span><span class="p">)</span>
+      <span class="k">end</span>
+
+    <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="sd">"</span><span class="s2">index.json"</span><span class="p">,</span> <span class="ss">data:</span> <span class="n">trucks</span><span class="p">)</span>
+  <span class="k">end</span>
+</code></pre>
+
+<p>Replace our previous implementation with the index action with this.  Here we're
+taking advantage of SQL ilike to do a simple case-insensitive pattern match on
+our truck table. The '%' is interpreted by zero or more characters giving us the
+ability to find results that match, even if our query is a substring.</p>
+
+<p>Alright.  Back to Ember.  If everything went we'll you should be able to search
+for a substring like so:</p>
+
+<p><img alt="search" src="../../../assets/images/search.png" /></p>
+
+<p>Open up our truck route.  We need to set the model.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/routes/map/panel/truck.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">findRecord</span><span class="p">(</span><span class="s1">'truck'</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">truck_id</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nx">focused</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">'map.panel'</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">didInsertElement</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">controllerFor</span><span class="p">(</span><span class="s1">'map.panel'</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s2">""</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>We use the truck_id from the parameter specified in router.js to find our
+record.  We also add a focused action here to handle it for this route.
+didInsertElement is a hook provided by Ember that runs after the DOM has loaded.
+We are using this to reset the params. Now let's add the template.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map/panel/truck.hbs--&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"pane"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"truck-pane-image"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;img</span> <span class="na">src=</span><span class="k">{{</span><span class="nv">model</span><span class="p">.</span><span class="nv">image</span><span class="k">}}</span><span class="err">&gt;
+  </span><span class="s">&lt;/div</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"truck-pane-title"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;h1&gt;</span><span class="k">{{</span><span class="nv">model</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span><span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"truck-pane-info"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;ul&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-clock-o"</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;span&gt;</span>
+      <span class="k">{{#if</span> <span class="nv">model</span><span class="p">.</span><span class="nv">status</span><span class="k">}}</span>
+        Open
+      <span class="k">{{else}}</span>
+        Closed
+      <span class="k">{{/if}}</span>
+      <span class="nt">&lt;/span&gt;</span>
+      <span class="nt">&lt;/li&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-cutlery"</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;span&gt;</span>
+        <span class="k">{{#</span><span class="nn">each</span> <span class="nv">model</span><span class="p">.</span><span class="nv">categories</span> <span class="nv">as</span> <span class="err">|</span><span class="nv">c</span> <span class="nv">index</span><span class="err">|</span><span class="k">}}</span>
+          <span class="k">{{</span><span class="nv">if</span> <span class="nv">index</span> <span class="s2">", "</span><span class="k">}}{{</span><span class="nv">c</span><span class="k">}}</span>
+        <span class="k">{{/</span><span class="nn">each</span><span class="k">}}</span>
+      <span class="nt">&lt;/span&gt;</span>
+      <span class="nt">&lt;/li&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-map-marker"</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;span&gt;</span><span class="k">{{</span><span class="nv">model</span><span class="p">.</span><span class="nv">address</span><span class="k">}}</span><span class="nt">&lt;/span&gt;</span>
+      <span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;/ul&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="k">{{#if</span> <span class="nv">model</span><span class="p">.</span><span class="nv">menu</span><span class="k">}}</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"truck-pane-menu-title"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;h1&gt;</span>Menu<span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"truck-pane-menu"</span><span class="nt">&gt;</span>
+    <span class="k">{{#</span><span class="nn">each</span> <span class="nv">model</span><span class="p">.</span><span class="nv">menu</span> <span class="nv">as</span> <span class="err">|</span><span class="nv">m</span><span class="err">|</span><span class="k">}}</span>
+      <span class="nt">&lt;h1&gt;</span><span class="k">{{</span><span class="nv">m</span><span class="k">}}</span><span class="nt">&lt;/h1&gt;</span>
+    <span class="k">{{/</span><span class="nn">each</span><span class="k">}}</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="k">{{/if}}</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+
+<p>Most of this should be pretty self explanatory.  We're using a handy each with
+index to separate our food categories by commas.  We'll be adding the address
+later using reverse geocoding.</p>
+
+<p>Right now we can't actually access this page from anywhere in our app so let's
+fix that.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map.hbs--&gt;</span>
+  <span class="k">{{#</span><span class="nn">marker-layer</span> <span class="nv">lat</span><span class="o">=</span><span class="nv">truck</span><span class="p">.</span><span class="nv">lat</span> <span class="nv">lng</span><span class="o">=</span><span class="nv">truck</span><span class="p">.</span><span class="nv">lng</span>
+                  <span class="nv">onClick</span><span class="o">=</span><span class="err">(</span><span class="nv">action</span> <span class="s1">'viewTruck'</span> <span class="nv">truck</span><span class="p">.</span><span class="nv">id</span><span class="err">)</span><span class="k">}}</span>
+    <span class="k">{{</span><span class="nv">truck</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span>
+  <span class="k">{{/</span><span class="nn">marker-layer</span><span class="k">}}</span>
+</code></pre>
+
+<p>Add an onClick action to the marker-layer component.  Then add the action in the
+map controller.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/controllers/map.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">lat</span><span class="p">:</span> <span class="mf">41.881832</span><span class="p">,</span>
+  <span class="na">lng</span><span class="p">:</span> <span class="o">-</span><span class="mf">87.623177</span><span class="p">,</span>
+  <span class="na">zoom</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+  <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nx">viewTruck</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">transitionToRoute</span><span class="p">(</span><span class="s1">'map.panel.truck'</span><span class="p">,</span> <span class="nx">id</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>And for the searches add a link-to in panel.hbs</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map/panel.hbs--&gt;</span>
+
+<span class="k">{{#</span><span class="nn">link-to</span> <span class="s1">'map.panel.truck'</span> <span class="nv">t</span><span class="p">.</span><span class="nv">id</span> <span class="err">(</span><span class="nv">query-params</span> <span class="nv">name</span><span class="o">=</span><span class="s2">""</span><span class="err">)</span><span class="k">}}</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"result"</span><span class="nt">&gt;</span><span class="k">{{</span><span class="nv">t</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span><span class="nt">&lt;/div&gt;</span>
+<span class="k">{{/</span><span class="nn">link-to</span><span class="k">}}</span>
+</code></pre>
+
+<p>We're using the query-params helper to clear our parameters upon route change.
+This prevents our search results from covering our panel.</p>
+
+<p>Here's what it should look like if you click a marker or an item in the search
+results box.</p>
+
+<p><img alt="truck" src="../../../assets/images/truckinfo.png" /></p>
+
+<p>Let's add the address attribute to our truck model. You'll need an API key for
+this.  I'm using Google's reverse geocoding <a href="https://developers.google.com/maps/documentation/geocoding/intro#reverse-example">service</a>.</p>
+
+<pre class="highlight javascript"><code><span class="kr">import</span> <span class="nx">DS</span> <span class="nx">from</span> <span class="s1">'ember-data'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">name</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">lat</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">lng</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">image</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">menu</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'array'</span><span class="p">),</span>
+  <span class="na">categories</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'array'</span><span class="p">),</span>
+  <span class="na">status</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(),</span>
+  <span class="na">address</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+
+  <span class="na">addressChanged</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'init'</span><span class="p">,</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">observer</span><span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lng'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="err">`</span><span class="na">https</span><span class="p">:</span><span class="c1">//maps.googleapis.com/maps/api/geocode/json?latlng=${this.get('lat')},${this.get('lng')}&amp;key=YOUR_API_KEY`;</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+
+    <span class="k">new</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">RSVP</span><span class="p">.</span><span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">Ember</span><span class="p">.</span><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="p">{</span>
+        <span class="na">success</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">resolve</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">results</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">formatted_address</span><span class="p">);</span>
+        <span class="p">},</span>
+        <span class="na">error</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">reason</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">reject</span><span class="p">(</span><span class="nx">reason</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">});</span>
+    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">self</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'address'</span><span class="p">,</span> <span class="nx">response</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="k">return</span> <span class="s2">"calculating..."</span><span class="p">;</span>
+  <span class="p">}))</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>We are using an observer to watch for any change in lat/lng and fetch a new
+address from Google's API. The init bit is needed to fire the Observer upon
+object initialization.  We return 'calculating…' to inform users that we are
+in the process of getting the address.  This will change when the Promise
+resolves.</p>
+
+<p><img alt="reverse geo" src="../../../assets/images/reversegeo.png" /></p>
+
+<p>Before we add our users we'll set up a settings route.  This is where our users
+will login and logout and eventually change their preferences.</p>
+
+<pre class="highlight shell"><code>ember g route map/panel/settings
+</code></pre>
+
+<p>Add a template for our settings pane.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map/panel/settings.hbs--&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"pane"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"settings-pane"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+<span class="k">{{</span><span class="nv">outlet</span><span class="k">}}</span>
+</code></pre>
+
+<p>Make the cog wheel transition to our settings pane.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map/panel.hbs--&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"cog"</span><span class="nt">&gt;</span>
+  <span class="k">{{#</span><span class="nn">link-to</span> <span class="s1">'map.panel.settings'</span> <span class="err">(</span><span class="nv">query-params</span> <span class="nv">name</span><span class="o">=</span><span class="s2">""</span><span class="err">)</span><span class="k">}}</span>
+    <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-cog"</span><span class="nt">&gt;&lt;/i&gt;</span>
+  <span class="k">{{/</span><span class="nn">link-to</span><span class="k">}}</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+
+<p>Current our settings page doesn't do anything.  Let's add a user login
+component.</p>
+
+<pre class="highlight shell"><code>ember g component login-form
+</code></pre>
+
+<p>Add the new component to our settings template.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map/panel/settings.hbs--&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"pane"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"settings-pane"</span><span class="nt">&gt;</span>
+    <span class="k">{{</span><span class="nv">login-form</span><span class="k">}}</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+<span class="k">{{</span><span class="nv">outlet</span><span class="k">}}</span>
+</code></pre>
+
+<p>Edit the component template and add the form.  Eventually we'll be adding
+sessions and we'll use isAuthenticated to determine if a user is signed in or
+not.  The component below shows a login form if the user is not signed in and
+their account name if they are.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/components/login-form.hbs--&gt;</span>
+<span class="k">{{#</span><span class="nn">unless</span> <span class="nv">session</span><span class="p">.</span><span class="nv">isAuthenticated</span><span class="k">}}</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"login"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;form</span> <span class="k">{{</span><span class="nv">action</span> <span class="s1">'authenticate'</span> <span class="nv">on</span><span class="o">=</span><span class="s1">'submit'</span><span class="k">}}</span><span class="nt">&gt;</span>
+  <span class="k">{{</span><span class="nv">input</span> <span class="nv">value</span><span class="o">=</span><span class="nv">identification</span> <span class="nv">placeholder</span><span class="o">=</span><span class="s1">'Email'</span><span class="k">}}</span>
+  <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"fa fa-envelope input-icon"</span><span class="nt">&gt;&lt;/span&gt;</span>
+  <span class="k">{{</span><span class="nv">input</span> <span class="nv">value</span><span class="o">=</span><span class="nv">password</span> <span class="nv">placeholder</span><span class="o">=</span><span class="s1">'Password'</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'password'</span><span class="k">}}</span>
+  <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"fa fa-key input-icon"</span><span class="nt">&gt;&lt;/span&gt;</span>
+  <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">"submit"</span><span class="nt">&gt;</span>Login
+    <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"fa fa-sign-out button-icon"</span><span class="nt">&gt;&lt;/span&gt;</span>
+  <span class="nt">&lt;/button&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+<span class="k">{{else}}</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"account"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-user"</span><span class="nt">&gt;&lt;/i&gt;</span><span class="k">{{</span><span class="nv">sessionAccount</span><span class="p">.</span><span class="nv">currentUser</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span>
+  <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-sign-out float-right"</span> <span class="k">{{</span><span class="nv">action</span> <span class="s1">'invalidateSession'</span><span class="k">}}</span><span class="nt">&gt;&lt;/i&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+<span class="k">{{/</span><span class="nn">unless</span><span class="k">}}</span>
+</code></pre>
+
+<p>We'll leave this form incomplete for now while we implement authentication.
+When we do we'll add our authenticate and invalidate session actions to
+login-form.js.</p>
+
+<p>Let's add users to our Ember app.  Generate a user model.</p>
+
+<pre class="highlight shell"><code>ember g model user name email truck
+</code></pre>
+
+<p>Import ember-data so we can use belongsTo.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/models/user.js</span>
+<span class="kr">import</span> <span class="nx">DS</span> <span class="nx">from</span> <span class="s1">'ember-data'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">name</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">),</span>
+  <span class="na">email</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">),</span>
+  <span class="na">truck</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="s1">'truck'</span><span class="p">)</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>Now add the relation to the truck.  Our API defines the relation as one-to-one
+so we want to do the same here.  In Ember there is no hasOne, instead you use
+belongsTo for both models.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/models/truck.js</span>
+<span class="kr">import</span> <span class="nx">DS</span> <span class="nx">from</span> <span class="s1">'ember-data'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">user</span><span class="p">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="s1">'user'</span><span class="p">)</span>
+<span class="p">});</span>
+</code></pre>
+
+<h2 id="authentication">Authentication</h2>
+
+<p>Ember simple auth uses authenticators to request permission to a server.  We'll
+be using a custom authenticator to fetch a token from Guardian.  We'll extend
+the base authenticator provided by the library.  Generate an authenticator named
+guardian.</p>
+
+<pre class="highlight shell"><code>ember g authenticator guardian
+</code></pre>
+
+<p>Replace the contents with the code below.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/authenticator/guardian.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="nx">Base</span> <span class="nx">from</span> <span class="s1">'ember-simple-auth/authenticators/base'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Base</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">restore</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">RSVP</span><span class="p">.</span><span class="nx">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">token</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">resolve</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">reject</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+  <span class="nx">authenticate</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">session</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">"data"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"email"</span><span class="p">:</span> <span class="nx">options</span><span class="p">.</span><span class="nx">identification</span><span class="p">,</span>
+          <span class="s2">"password"</span><span class="p">:</span> <span class="nx">options</span><span class="p">.</span><span class="nx">password</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">};</span>
+
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">RSVP</span><span class="p">.</span><span class="nx">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">Ember</span><span class="p">.</span><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+          <span class="na">url</span><span class="p">:</span> <span class="s1">'http://localhost:4000/api/v1/token'</span><span class="p">,</span>
+          <span class="na">headers</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">accept</span><span class="p">:</span> <span class="s1">'application/vnd.api+json'</span>
+          <span class="p">},</span>
+          <span class="na">contentType</span><span class="p">:</span> <span class="s1">'application/vnd.api+json'</span><span class="p">,</span>
+          <span class="na">crossDomain</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+          <span class="na">type</span><span class="p">:</span> <span class="s1">'POST'</span><span class="p">,</span>
+          <span class="na">data</span><span class="p">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">session</span><span class="p">)</span>
+        <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">Ember</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">resolve</span><span class="p">({</span>
+              <span class="na">token</span><span class="p">:</span> <span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">attributes</span><span class="p">.</span><span class="nx">jwt</span><span class="p">,</span>
+              <span class="na">id</span><span class="p">:</span> <span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">attributes</span><span class="p">.</span><span class="nx">id</span>
+            <span class="p">});</span>
+          <span class="p">});</span>
+        <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">xhr</span><span class="p">,</span> <span class="nx">status</span><span class="p">,</span> <span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">response</span> <span class="o">=</span> <span class="nx">xhr</span><span class="p">.</span><span class="nx">responseText</span><span class="p">;</span>
+          <span class="nx">Ember</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">reject</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+          <span class="p">});</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+  <span class="nx">invalidate</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">RSVP</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>restore() is triggered upon start of the application or if session data changes.
+It will result in authentication if the session is still valid.</p>
+
+<p>authenticate() will be called from the session using credentials from our form to
+request a token from our API.  Upon success the token and user_id will be saved
+in the session store.</p>
+
+<p>invalidate() is called when our users log out. This will log this user out of
+all sessions across browsers.</p>
+
+<p>Next we'll create our session.  The session is an Ember service that serves as
+the interface to the ESA library.  It provides access to the session data as well
+as the authenticate, invalidate, and authorize methods.  We'll be extending the
+default service to give us access to the current user.</p>
+
+<pre class="highlight shell"><code>ember g service session-account
+</code></pre>
+
+<pre class="highlight javascript"><code><span class="c1">//app/services/session-account.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">const</span> <span class="p">{</span> <span class="nl">inject</span><span class="p">:</span> <span class="p">{</span> <span class="nx">service</span>  <span class="p">},</span> <span class="nx">RSVP</span>  <span class="p">}</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Service</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">session</span><span class="p">:</span> <span class="nx">service</span><span class="p">(</span><span class="s1">'session'</span><span class="p">),</span>
+  <span class="na">store</span><span class="p">:</span> <span class="nx">service</span><span class="p">(),</span>
+  <span class="nx">loadCurrentUser</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">RSVP</span><span class="p">.</span><span class="nx">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">user_id</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'session.data.authenticated.id'</span><span class="p">);</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">user_id</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'store'</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="s1">'user'</span><span class="p">,</span> <span class="nx">user_id</span><span class="p">).</span><span class="nx">then</span><span class="p">((</span><span class="nx">user</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'currentUser'</span><span class="p">,</span> <span class="nx">user</span><span class="p">);</span>
+          <span class="nx">resolve</span><span class="p">();</span>
+        <span class="p">},</span> <span class="nx">reject</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">resolve</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>Here we add the method loadCurrentUser().  This will fetch the current user using
+the id stored from the authentication method.  We'll call this method from the
+application route.</p>
+
+<pre class="highlight shell"><code>ember g route application
+</code></pre>
+
+<pre class="highlight javascript"><code><span class="c1">//app/routes/application.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="nx">ApplicationRouteMixin</span> <span class="nx">from</span> <span class="s1">'ember-simple-auth/mixins/application-route-mixin'</span><span class="p">;</span>
+
+<span class="kr">const</span> <span class="p">{</span> <span class="nx">service</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">ApplicationRouteMixin</span><span class="p">,</span> <span class="p">{</span>
+  <span class="na">sessionAccount</span><span class="p">:</span> <span class="nx">service</span><span class="p">(</span><span class="s1">'session-account'</span><span class="p">),</span>
+
+  <span class="nx">beforeModel</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_loadCurrentUser</span><span class="p">();</span>
+  <span class="p">},</span>
+  <span class="nx">sessionAuthenticated</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_super</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_loadCurrentUser</span><span class="p">().</span><span class="k">catch</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'session'</span><span class="p">).</span><span class="nx">invalidate</span><span class="p">());</span>
+  <span class="p">},</span>
+  <span class="nx">_loadCurrentUser</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'sessionAccount'</span><span class="p">).</span><span class="nx">loadCurrentUser</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>In the application route we use ESA's application route mixin and cal our
+loadCurrentUser() method in the beforeModel() hook.</p>
+
+<p>Now we can generate our authorizer.  Ember simple auth uses authorizers to
+inject our token into our server requests.</p>
+
+<pre class="highlight shell"><code>ember g authorizer custom
+</code></pre>
+
+<pre class="highlight javascript"><code><span class="c1">//app/authorizer/custom.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="nx">Base</span> <span class="nx">from</span> <span class="s1">'ember-simple-auth/authorizers/base'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Base</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">session</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(),</span>
+  <span class="nx">authorize</span><span class="p">(</span><span class="nx">jqXHR</span><span class="p">,</span> <span class="nx">requestOptions</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">accessToken</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'session.data.authenticated.token'</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'session.isAuthenticated'</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">accessToken</span><span class="p">))</span> <span class="p">{</span>
+      <span class="nx">requestOptions</span><span class="p">(</span><span class="s1">'Authorization'</span><span class="p">,</span> <span class="s1">'Bearer '</span> <span class="o">+</span> <span class="nx">accessToken</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>We'll be using the DataAdapterMixin in our application adapter to attach our
+authorizer header for every API request.  A great feature of this mixin is that
+it will invalidate the session if a request produces a 401 (unauthorized).  Edit
+the application adapter and add the mixin.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/adapters/application.js</span>
+<span class="kr">import</span> <span class="nx">JSONAPIAdapter</span> <span class="nx">from</span> <span class="s1">'ember-data/adapters/json-api'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="nx">DataAdapterMixin</span> <span class="nx">from</span> <span class="s1">'ember-simple-auth/mixins/data-adapter-mixin'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">JSONAPIAdapter</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">DataAdapterMixin</span><span class="p">,</span> <span class="p">{</span>
+  <span class="na">host</span><span class="p">:</span> <span class="s1">'http://localhost:4000'</span><span class="p">,</span>
+  <span class="na">namespace</span><span class="p">:</span> <span class="s1">'api/v1'</span><span class="p">,</span>
+  <span class="na">authorizer</span><span class="p">:</span> <span class="s1">'authorizer:custom'</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>Excellent.  Now we need to add those login actions.  Open up login-form.js.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/components/login-form.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">session</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(</span><span class="s1">'session'</span><span class="p">),</span>
+  <span class="na">sessionAccount</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(</span><span class="s1">'session-account'</span><span class="p">),</span>
+  <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nx">authenticate</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">credentials</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getProperties</span><span class="p">(</span><span class="s1">'identification'</span><span class="p">,</span> <span class="s1">'password'</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'session'</span><span class="p">).</span><span class="nx">authenticate</span><span class="p">(</span><span class="s1">'authenticator:guardian'</span><span class="p">,</span> <span class="nx">credentials</span><span class="p">)</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">reason</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+          <span class="nx">alert</span><span class="p">(</span><span class="nx">reason</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">},</span>
+    <span class="nx">invalidateSession</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'session'</span><span class="p">).</span><span class="nx">invalidate</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>If you or I didn't forget anything you should be able to login!</p>
+
+<p>Time for some socket action.</p>
+
+<pre class="highlight shell"><code>ember g service socket
+</code></pre>
+
+<pre class="highlight javascript"><code><span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="p">{</span> <span class="nx">Socket</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'phoenix'</span><span class="p">;</span>
+
+<span class="kr">const</span> <span class="p">{</span> <span class="nx">assert</span><span class="p">,</span> <span class="nx">Service</span><span class="p">,</span> <span class="nx">Evented</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Service</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">Evented</span><span class="p">,</span> <span class="p">{</span>
+  <span class="na">socket</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="na">isHealthy</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="nx">init</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'open'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Socket was opened!'</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'close'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Socket was closed!'</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'error'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Socket encountered and error!'</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">connect</span><span class="p">();</span>
+  <span class="p">},</span>
+  <span class="nx">connect</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">socket</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Socket</span><span class="p">(</span><span class="s2">"ws://localhost:4000/socket"</span><span class="p">,</span> <span class="p">{</span>
+      <span class="na">logger</span><span class="p">:</span> <span class="p">((</span><span class="nx">kind</span><span class="p">,</span> <span class="nx">msg</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">kind</span><span class="p">}:</span> <span class="nx">$</span><span class="p">{</span><span class="nx">msg</span><span class="p">}</span><span class="err">`</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+      <span class="p">})</span>
+    <span class="p">});</span>
+
+    <span class="nx">socket</span><span class="p">.</span><span class="nx">connect</span><span class="p">();</span>
+
+    <span class="nx">socket</span><span class="p">.</span><span class="nx">onOpen</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'isHealthy'</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">'open'</span><span class="p">,</span> <span class="p">...</span><span class="nx">arguments</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="nx">socket</span><span class="p">.</span><span class="nx">onClose</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'isHealthy'</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">'close'</span><span class="p">,</span> <span class="p">...</span><span class="nx">arguments</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="nx">socket</span><span class="p">.</span><span class="nx">onError</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'isHealthy'</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">'error'</span><span class="p">,</span> <span class="p">...</span><span class="nx">arguments</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'socket'</span><span class="p">,</span> <span class="nx">socket</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">joinChannel</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">socket</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'socket'</span><span class="p">);</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="s1">'must connect to a socket first'</span><span class="p">,</span> <span class="nx">socket</span><span class="p">);</span>
+
+    <span class="kr">const</span> <span class="nx">channel</span> <span class="o">=</span> <span class="nx">socket</span><span class="p">.</span><span class="nx">channel</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="p">{});</span>
+    <span class="nx">channel</span><span class="p">.</span><span class="nx">join</span><span class="p">();</span>
+    <span class="k">return</span> <span class="nx">channel</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>There's a lot going on here.  When our service is initialized we call our
+connect method which creates a new socket connection using our API's socket
+endpoint and the phoenix.js library. We then set up some events for logging
+purposes.  Our joinChannel method will be called from our map route.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/routes/map.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">session</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(</span><span class="s1">'session'</span><span class="p">),</span>
+  <span class="na">sessionAccount</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(</span><span class="s1">'session-account'</span><span class="p">),</span>
+  <span class="na">store</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(),</span>
+  <span class="na">socket</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(),</span>
+  <span class="nx">model</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">findAll</span><span class="p">(</span><span class="s1">'truck'</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">afterModel</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">chan</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'socket'</span><span class="p">).</span><span class="nx">joinChannel</span><span class="p">(</span><span class="s2">"trucks"</span><span class="p">);</span>
+
+    <span class="nx">chan</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"change"</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'store'</span><span class="p">).</span><span class="nx">findRecord</span><span class="p">(</span><span class="s1">'truck'</span><span class="p">,</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="p">{</span><span class="na">reload</span><span class="p">:</span> <span class="kc">true</span><span class="p">});</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>Here we're connection to our trucks channel in the afterModel() hook.  We then
+set up an event handler for the change event, using the payload to reload the
+updated truck's data. This ensures that any client connected to the channel will
+always have the most up to date information about the trucks.</p>
+
+<p>Open up your browser's javascript console and load the map route.  You should
+get a 'Socket was opened!' log if the implementation is correct.  Now let's make
+this connection useful.</p>
+
+<p>Open the map template and add the ability to drag the trucks if authenticated.
+We'll set draggable to true and add an action to update the truck's location on
+the onDragend event.</p>
+
+<pre class="highlight handlebars"><code><span class="c">&lt;!--app/templates/map.hbs--&gt;</span>
+<span class="k">{{#</span><span class="nn">leaflet-map</span> <span class="nv">lat</span><span class="o">=</span><span class="nv">lat</span> <span class="nv">lng</span><span class="o">=</span><span class="nv">lng</span> <span class="nv">zoom</span><span class="o">=</span><span class="nv">zoom</span> <span class="nv">dragging</span><span class="o">=</span><span class="kc">true</span> <span class="nv">zoomControl</span><span class="o">=</span><span class="kc">false</span><span class="k">}}</span>
+  <span class="k">{{</span><span class="nv">tile-layer</span> <span class="nv">url</span><span class="o">=</span><span class="s2">"https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"</span><span class="k">}}</span>
+
+  <span class="k">{{#</span><span class="nn">each</span> <span class="nv">model</span> <span class="nv">as</span> <span class="err">|</span><span class="nv">truck</span><span class="err">|</span><span class="k">}}</span>
+    <span class="k">{{#if</span> <span class="nv">session</span><span class="p">.</span><span class="nv">isAuthenticated</span><span class="k">}}</span>
+      <span class="k">{{#</span><span class="nn">marker-layer</span> <span class="nv">lat</span><span class="o">=</span><span class="nv">truck</span><span class="p">.</span><span class="nv">lat</span> <span class="nv">lng</span><span class="o">=</span><span class="nv">truck</span><span class="p">.</span><span class="nv">lng</span> <span class="nv">draggable</span><span class="o">=</span><span class="kc">true</span>
+        <span class="nv">onClick</span><span class="o">=</span><span class="err">(</span><span class="nv">action</span> <span class="s1">'viewTruck'</span> <span class="nv">truck</span><span class="p">.</span><span class="nv">id</span><span class="err">)</span>
+        <span class="nv">onDragend</span><span class="o">=</span><span class="err">(</span><span class="nv">action</span> <span class="s2">"updateLocation"</span> <span class="nv">truck</span><span class="err">)</span><span class="k">}}</span>
+        <span class="k">{{</span><span class="nv">truck</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span>
+      <span class="k">{{/</span><span class="nn">marker-layer</span><span class="k">}}</span>
+    <span class="k">{{else}}</span>
+      <span class="k">{{#</span><span class="nn">marker-layer</span> <span class="nv">lat</span><span class="o">=</span><span class="nv">truck</span><span class="p">.</span><span class="nv">lat</span> <span class="nv">lng</span><span class="o">=</span><span class="nv">truck</span><span class="p">.</span><span class="nv">lng</span>
+        <span class="nv">onClick</span><span class="o">=</span><span class="err">(</span><span class="nv">action</span> <span class="s1">'viewTruck'</span> <span class="nv">truck</span><span class="p">.</span><span class="nv">id</span><span class="err">)</span><span class="k">}}</span>
+        <span class="k">{{</span><span class="nv">truck</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span>
+      <span class="k">{{/</span><span class="nn">marker-layer</span><span class="k">}}</span>
+    <span class="k">{{/if}}</span>
+  <span class="k">{{/</span><span class="nn">each</span><span class="k">}}</span>
+<span class="k">{{/</span><span class="nn">leaflet-map</span><span class="k">}}</span>
+
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"panel"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"search-icon-container"</span><span class="nt">&gt;</span>
+    <span class="k">{{#</span><span class="nn">link-to</span> <span class="s1">'map.panel'</span><span class="k">}}</span>
+      <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"search-icon fa fa-search"</span><span class="nt">&gt;&lt;/i&gt;</span>
+    <span class="k">{{/</span><span class="nn">link-to</span><span class="k">}}</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+<span class="k">{{</span><span class="nv">outlet</span><span class="k">}}</span>
+</code></pre>
+
+<p>Add the updateLocation action to the map controller.  The second parameter is
+provided by the marker-layer so that we can get the targeted markers lat and
+lng.  We then set our truck model's new coordinates and save.  The save triggers
+an patch to our API with the new data.  And since our channel broadcasts the id
+of any truck that changes, all connected clients will immediately see the new
+location.</p>
+
+<pre class="highlight javascript"><code><span class="c1">//app/controllers/map.js</span>
+<span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">'ember'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">session</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(</span><span class="s1">'session'</span><span class="p">),</span>
+  <span class="na">sessionAccount</span><span class="p">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(</span><span class="s1">'session-account'</span><span class="p">),</span>
+  <span class="na">lat</span><span class="p">:</span> <span class="mf">41.881832</span><span class="p">,</span>
+  <span class="na">lng</span><span class="p">:</span> <span class="o">-</span><span class="mf">87.623177</span><span class="p">,</span>
+  <span class="na">zoom</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+  <span class="na">actions</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nx">viewTruck</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">transitionToRoute</span><span class="p">(</span><span class="s1">'map.panel.truck'</span><span class="p">,</span> <span class="nx">id</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="nx">updateLocation</span><span class="p">(</span><span class="nx">truck</span><span class="p">,</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">let</span> <span class="nx">location</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">getLatLng</span><span class="p">();</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">location</span><span class="p">);</span>
+      <span class="nx">truck</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="nx">location</span><span class="p">.</span><span class="nx">lat</span><span class="p">);</span>
+      <span class="nx">truck</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'lng'</span><span class="p">,</span> <span class="nx">location</span><span class="p">.</span><span class="nx">lng</span><span class="p">);</span>
+      <span class="nx">truck</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>Now give it a try.  Login and drag a truck.  You should see the truck's new lat
+and lng log to the console and update in your database.  Open up a different
+browser to observe the magic of WebSockets!</p>
+
+<p>This has great potential, but as it stands is very limited.  What we need to do
+is only allow the logged in user to set the location of their own truck.  I'll
+save that for another time along with registration, favorites, and possibly a
+GenServer twitter crawler.  Stay tuned and thanks for reading.</p>
+
+<p>Special thanks to all those who have already created Phoenix and EmberJS tutorials.
+Without you and your wonderful posts, this would have been a much larger task.</p>
+
+<h1 id="references">References</h1>
+<ul>
+  <li>
+    <p><a href="https://github.com/AgilionApps/ja_serializer">JaSerializer</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/elixircnx/comeonin">Comeonin</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/ueberauth/guardian">Guardian</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/simplabs/ember-simple-auth">ember-simple-auth</a></p>
+  </li>
+  <li>
+    <p><a href="http://www.phoenixframework.org/">Phoenix Framework</a></p>
+  </li>
+  <li>
+    <p><a href="http://emberjs.com/">EmberJS</a></p>
+  </li>
+  <li>
+    <p><a href="http://leafletjs.com/">Leaflet</a></p>
+  </li>
+  <li>
+    <p><a href="http://www.ember-leaflet.com/">Ember Leaflet</a></p>
+  </li>
+</ul>
+
+</div>
+<div class='post-comment'>
+<div id='disqus_thread'></div>
+<script>
+  var disqus_shortname = 'bloomytil';
+  (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+</div>
+
+</div>
+</div>
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="../../../assets/javascripts/application.js"></script>
+</body>
+</html>
