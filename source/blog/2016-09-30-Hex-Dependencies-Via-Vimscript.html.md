@@ -17,8 +17,8 @@ Ding! I'll just use that!
 
 ~~~vim
 function! GetHexPkgConfig(pkg)
-  let @1 = system("mix hex.info " . a:lib . " | grep 'Config:' | awk '{ print $2,$3,$4 }'")
-  normal "1p
+  let @1 = system("mix hex.info " . a:pkg . " | grep 'Config:' | awk '{ print $2,$3,$4 }'")
+  normal "1p==
 endfunction
 
 command! -nargs=1 HexC call GetHexPkgConfig("<args>")
