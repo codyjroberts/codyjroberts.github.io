@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Ember Data &amp; Components">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Ember Data &amp; Components">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Ember Data &amp; Components – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Ember Data &amp; Components
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>I decided to build an EmberJS frontend to the Phoenix API i&rsquo;ve been working on.
+I have mostly avoided frontend frameworks purely due to the learning curve
+and lack of time.  The independent study that I&rsquo;m doing this semester allows me
+a bit of freedom to learn what I think is important.  So for the last week and a
+half I&rsquo;ve been learning about EmberJS and I must say it&rsquo;s been challenging and
+rewarding.</p>
+
+<p>One roadblock I ran into was how to access an Ember Data model in my component.
+From what I&rsquo;ve read it seems that most of the time model data is used inside the
+handlebars file of the component, like so:</p>
+<div class="highlight"><pre class="chroma"><code class="language-handlebars" data-lang="handlebars"><span class="x">&lt;ul&gt;
+</span><span class="x"></span><span class="cp">{{</span><span class="k">#each</span> <span class="nv">model</span> <span class="nv">as</span> <span class="err">|</span><span class="nv">truck</span><span class="err">|</span><span class="cp">}}</span><span class="x">
+</span><span class="x">  &lt;li&gt;</span><span class="cp">{{</span><span class="nv">truck.name</span><span class="cp">}}</span><span class="x">&lt;/li&gt;
+</span><span class="x"></span><span class="cp">{{</span><span class="k">/each</span><span class="cp">}}</span><span class="x">
+</span><span class="x">&lt;/ul&gt;</span></code></pre></div>
+<p>This is pretty straightfoward.  The model is set in the route causing a get
+request on <a href="http://ourserver.com/api/version/trucks">http://ourserver.com/api/version/trucks</a> as soon as the page loads.
+The request retrieves all the entries and persists them to the store where we
+can access them in our component from the variable model.  The route code is
+shown here:</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="k">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">&#39;ember&#39;</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">findAll</span><span class="p">(</span><span class="s1">&#39;truck&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span></code></pre></div>
+<p>This is great, but it wasn&rsquo;t what I needed.  My toy app needs to generate
+map markers for each entry in my model.  I&rsquo;m handling all my maps
+generation in the javascript file inside my component.  After reading many blog
+posts and coming up short, I searched the documentation for an answer.  I knew
+I could access the store if I injected the service, but even when I did I
+couldn&rsquo;t figure out how to access each item.  I tried this first:</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="k">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">&#39;ember&#39;</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">store</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(),</span>
+  <span class="nx">didInsertElement</span><span class="o">:</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">trucks</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">).</span><span class="nx">findAll</span><span class="p">(</span><span class="s1">&#39;truck&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span></code></pre></div>
+<p>If you&rsquo;re new to Ember the code above may seem a bit weird.  On the fourth line
+we are injecting the store service.  We don&rsquo;t actually have to send the name of
+the service we wish to inject as a parameter as it looks for the name we set it
+to, in this case store.  The fifth line is similar to <code>(document).ready</code> but
+for the component. This set trucks to what I believe is a promise.  From there
+I couldn&rsquo;t really figure out how to access each item.  I&rsquo;m still learning how
+promises work, so I gave this a try.</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">).</span><span class="nx">findAll</span><span class="p">(</span><span class="s1">&#39;truck&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">((</span><span class="nx">trucks</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">trucks</span><span class="p">);</span>
+<span class="p">});</span></code></pre></div>
+<p>This didn&rsquo;t really work out for me either.  The object trucks gave me no clues
+as to how to access the items.  I found the peekAll method in the documentation
+which states that it returns a filtered array (RecordArray) immediately.  This
+is different from findAll, which returns a promise.</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="k">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="s1">&#39;ember&#39;</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">store</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">inject</span><span class="p">.</span><span class="nx">service</span><span class="p">(),</span>
+  <span class="nx">didInsertElement</span><span class="o">:</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="c1">//google maps code truncated
+</span><span class="c1"></span>    <span class="kd">var</span> <span class="nx">trucks</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">).</span><span class="nx">peekAll</span><span class="p">(</span><span class="s1">&#39;truck&#39;</span><span class="p">);</span>
+    <span class="nx">trucks</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">i</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="kd">let</span> <span class="nx">t</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nx">name</span><span class="o">:</span> <span class="nx">i</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">),</span>
+        <span class="nx">menu</span><span class="o">:</span> <span class="nx">i</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;menu&#39;</span><span class="p">),</span>
+        <span class="nx">position</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">lat</span><span class="o">:</span> <span class="nb">parseFloat</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">)),</span>
+          <span class="nx">lng</span><span class="o">:</span> <span class="nb">parseFloat</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;lng&#39;</span><span class="p">))</span>
+        <span class="p">},</span>
+        <span class="nx">image</span><span class="o">:</span> <span class="nx">i</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
+      <span class="p">};</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">addMarker</span><span class="p">(</span><span class="nx">t</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+  <span class="nx">addMarker</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">truck</span><span class="p">){</span>
+    <span class="kd">var</span> <span class="nx">menu</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span><span class="p">;</span>
+    <span class="nx">truck</span><span class="p">.</span><span class="nx">menu</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">i</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="nx">menu</span> <span class="o">+=</span> <span class="sb">`&lt;li&gt;</span><span class="si">${</span><span class="nx">i</span><span class="si">}</span><span class="sb">&lt;/li&gt;`</span><span class="p">;</span>
+    <span class="p">});</span>
+
+    <span class="kd">var</span> <span class="nx">infowindow</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">google</span><span class="p">.</span><span class="nx">maps</span><span class="p">.</span><span class="nx">InfoWindow</span><span class="p">({</span>
+      <span class="nx">content</span><span class="o">:</span> <span class="sb">`&lt;h1&gt;</span><span class="si">${</span><span class="nx">truck</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">&lt;/h1&gt;&lt;hr&gt;&lt;ul&gt;</span><span class="si">${</span><span class="nx">menu</span><span class="si">}</span><span class="sb">&lt;/ul&gt;`</span>
+    <span class="p">});</span>
+
+    <span class="kd">var</span> <span class="nx">marker</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">google</span><span class="p">.</span><span class="nx">maps</span><span class="p">.</span><span class="nx">Marker</span><span class="p">({</span>
+      <span class="nx">position</span><span class="o">:</span> <span class="nx">truck</span><span class="p">.</span><span class="nx">position</span><span class="p">,</span>
+      <span class="nx">map</span><span class="o">:</span> <span class="nx">bMap</span><span class="p">.</span><span class="nx">gmap</span><span class="p">,</span>
+      <span class="nx">icon</span><span class="o">:</span> <span class="nx">truck</span><span class="p">.</span><span class="nx">image</span>
+    <span class="p">});</span>
+
+    <span class="nx">marker</span><span class="p">.</span><span class="nx">addListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+      <span class="nx">infowindow</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="nx">bMap</span><span class="p">.</span><span class="nx">gmap</span><span class="p">,</span> <span class="nx">marker</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">});</span></code></pre></div>
+<p>The code above is truncated for the sake of room. Finally I could use forEach to
+iterate over my data and add markers to my map.  Now I have no doubts that
+this isn&rsquo;t the correct way to do this.  But until I find more information on the
+subject it&rsquo;ll have to do.  I might have to subscribe to some Ember screencasts
+in the near future.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written April 1, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/articles/streams-enums-and-protocols/">← Streams, Enums, and Protocols!</a>&nbsp;
+            <a href="/articles/chowmonger-phoenix--ember/" style="float:right;">Chowmonger (Phoenix &amp; Ember) →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

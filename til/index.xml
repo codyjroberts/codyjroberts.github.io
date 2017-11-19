@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Til on codyjroberts.com</title>
+    <link>http://codyjroberts.com/til/</link>
+    <description>Recent content in Til on codyjroberts.com</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 15 Dec 2016 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://codyjroberts.com/til/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>IEx Test Helper</title>
+      <link>http://codyjroberts.com/til/iex-test-helper/</link>
+      <pubDate>Thu, 15 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>http://codyjroberts.com/til/iex-test-helper/</guid>
+      <description>This week at Chicago Elixir we were paring on some Exercism. Dorian Karter was looking for a way to run ExUnit tests inside of IEx without mix. Surely there must be a way! After some research I came up with this nugget.
+#.iex.exs defmodule TestHelper do @moduledoc false @doc&amp;#34;&amp;#34;&amp;#34; Reloads files and runs ExUnit tests in the pwd &amp;#34;&amp;#34;&amp;#34; def run_tests(opts \\ []) do respawn clear? = Keyword.get(opts, :clear, false) if clear?</description>
+    </item>
+    
+    <item>
+      <title>Hex Dependencies via Vimscript</title>
+      <link>http://codyjroberts.com/til/hex-dependencies-via-vimscript/</link>
+      <pubDate>Fri, 30 Sep 2016 00:00:00 +0000</pubDate>
+      
+      <guid>http://codyjroberts.com/til/hex-dependencies-via-vimscript/</guid>
+      <description>I found myself, in (neo)vim as always, adding a library to mix.exs. I wasn&amp;rsquo;t sure of the current version of said package, so I reached for a browser to check. I&amp;rsquo;m not sure why, but it felt so inefficient.
+The first thing I did was check the mix hex command. Turns out theres a mix hex.info [pkg] command that spits out some useful information about a given hex package. One of the details returned is the very handy configuration line for mix.</description>
+    </item>
+    
+    <item>
+      <title>TDD with Elixir and Neovim</title>
+      <link>http://codyjroberts.com/til/tdd-with-elixir-and-neovim/</link>
+      <pubDate>Fri, 08 Jul 2016 00:00:00 +0000</pubDate>
+      
+      <guid>http://codyjroberts.com/til/tdd-with-elixir-and-neovim/</guid>
+      <description>I had pretty good mileage with mix-test.watch, but recently it hasn&amp;rsquo;t been working for me. There also seems to be some issues using it with Phoenix. I searched for another test runner but couldn&amp;rsquo;t seem to find one.
+In an effort to make use of Neovim&amp;rsquo;s terminal editor and solve my testing problem, I decided to ditch my typical tmux workflow. I wrote up a simple vim binding to run my tests in a :vsplit window.</description>
+    </item>
+    
+    <item>
+      <title>Elixir Comprehensions</title>
+      <link>http://codyjroberts.com/til/elixir-comprehensions/</link>
+      <pubDate>Sun, 06 Mar 2016 09:51:07 -0500</pubDate>
+      
+      <guid>http://codyjroberts.com/til/elixir-comprehensions/</guid>
+      <description>Comprehensions are a pretty neat little feature of elixir. They allow you to construct a data structure from one or two enumerables while filtering and transforming the data. Here are some examples:
+for x &amp;lt;- [50, 100, 150, 200], do: x - 50 [0, 50, 100, 150] for {name, age} &amp;lt;- [{&amp;#34;bob&amp;#34;, 20}, {&amp;#34;sue&amp;#34;, 50}, {&amp;#34;jim&amp;#34;, 34}, {&amp;#34;carla&amp;#34;, 75}], age &amp;lt; 50, do: name [&amp;#34;bob&amp;#34;, &amp;#34;jim&amp;#34;] for {name, _, &amp;#34;F&amp;#34;} &amp;lt;- [{&amp;#34;bob&amp;#34;, 20, &amp;#34;M&amp;#34;}, {&amp;#34;sue&amp;#34;, 50, &amp;#34;F&amp;#34;}, {&amp;#34;jim&amp;#34;, 34, &amp;#34;M&amp;#34;}, {&amp;#34;carla&amp;#34;, 75, &amp;#34;F&amp;#34;}], do: name [&amp;#34;sue&amp;#34;, &amp;#34;carla&amp;#34;] for {name, age} &amp;lt;- [{&amp;#34;bob&amp;#34;, 20}, {&amp;#34;sue&amp;#34;, 50}, {&amp;#34;jim&amp;#34;, 34}, {&amp;#34;carla&amp;#34;, 75}], candy &amp;lt;- [&amp;#34;goodbar&amp;#34;, &amp;#34;snickers&amp;#34;, &amp;#34;reeses&amp;#34;], age &amp;gt; 40, do: {name, candy} [{&amp;#34;sue&amp;#34;, &amp;#34;goodbar&amp;#34;}, {&amp;#34;sue&amp;#34;, &amp;#34;snickers&amp;#34;}, {&amp;#34;sue&amp;#34;, &amp;#34;reeses&amp;#34;}, {&amp;#34;carla&amp;#34;, &amp;#34;goodbar&amp;#34;}, {&amp;#34;carla&amp;#34;, &amp;#34;snickers&amp;#34;}, {&amp;#34;carla&amp;#34;, &amp;#34;reeses&amp;#34;}] for file &amp;lt;- File.</description>
+    </item>
+    
+    <item>
+      <title>What is GenServer?</title>
+      <link>http://codyjroberts.com/til/what-is-genserver/</link>
+      <pubDate>Thu, 18 Feb 2016 12:00:00 -0600</pubDate>
+      
+      <guid>http://codyjroberts.com/til/what-is-genserver/</guid>
+      <description>Erlang is highly valued for it&amp;rsquo;s concurrency model, and the OTP framework provides several &amp;lsquo;behaviours&amp;rsquo; for building a current system. One such behaviour is the generic server process or gen_server. Generic server processes are an abstraction for the server side of client-server interactions and are often used to maintain state.
+Elixir provides the module GenServer for creating such processes. This module provides the same functionality of the Erlang behaviour. All one needs to do to utilize GenServer is to implement some callbacks.</description>
+    </item>
+    
+    <item>
+      <title>Elixir Structs</title>
+      <link>http://codyjroberts.com/til/elixir-structs/</link>
+      <pubDate>Mon, 08 Feb 2016 12:00:00 -0600</pubDate>
+      
+      <guid>http://codyjroberts.com/til/elixir-structs/</guid>
+      <description>Elixir structs are built on top of Maps, a key/value pair data structure. Structs provide helpful features such as default values and compile time errors.
+Structs are usually defined using the defstruct/1 inside of a module.
+defmodule Kitty do defstruct name: nil, age: nil, breed: nil #defstruct [:name, :age, :breed] end defstruct/1 takes a key/value list where the values are the defaults. If you happen to be defaulting to nil for every field, you can use the alternative syntax on the second line that only provides the keys.</description>
+    </item>
+    
+    <item>
+      <title>Elixir Atoms</title>
+      <link>http://codyjroberts.com/til/elixir-atoms/</link>
+      <pubDate>Wed, 27 Jan 2016 12:00:00 -0600</pubDate>
+      
+      <guid>http://codyjroberts.com/til/elixir-atoms/</guid>
+      <description>I&amp;rsquo;ve officially begun my Elixir journey. Coming from some experience with F# and Ruby I&amp;rsquo;ve noticed many syntax and feature similarities. One of the first things I noticed was the presence of :atoms. Atoms in Elixir are similar to Ruby&amp;rsquo;s symbol type. But Ruby and Elixir aren&amp;rsquo;t the only languages that support this basic type. The list is long: Clojure, Smalltalk, Scheme, Scala, and Objective-C just to name a few. The idea seems to come from C&amp;rsquo;s enum.</description>
+    </item>
+    
+    <item>
+      <title>Squashing Commits</title>
+      <link>http://codyjroberts.com/til/squashing-commits/</link>
+      <pubDate>Sat, 16 Jan 2016 15:25:35 -0600</pubDate>
+      
+      <guid>http://codyjroberts.com/til/squashing-commits/</guid>
+      <description>Today I was working on a simple change to a repository I forked JacobEvelyn/Friends. The issue was just a few style errors caught by RuboCop. I made a stupid mistake and the TravisCI build failed (oh the value in CI!). So I pushed another commit fixing the changes but felt that the minor fix didn&amp;rsquo;t warrant it&amp;rsquo;s own commit. I searched for a solution and came across the ability to squash commits.</description>
+    </item>
+    
+    <item>
+      <title>Ruby&#39;s Reverse Splat</title>
+      <link>http://codyjroberts.com/til/rubys-reverse-splat/</link>
+      <pubDate>Tue, 08 Sep 2015 12:08:50 -0500</pubDate>
+      
+      <guid>http://codyjroberts.com/til/rubys-reverse-splat/</guid>
+      <description>Ruby&amp;rsquo;s splat operator is one nifty little feature. If you&amp;rsquo;re not familiar, the splat operator converts a variant number of arguments into an array like so&amp;hellip;
+def get_args *args args end get_args(&amp;#39;this&amp;#39;, &amp;#39;is&amp;#39;, &amp;#39;random&amp;#39;) =&amp;gt; [&amp;#34;this&amp;#34;, &amp;#34;is&amp;#34;, &amp;#34;random&amp;#34;] The splat operator is super handy when the amount of arguments being passed is unknown. What I learned today was that this operator can also be used when passing an argument to a method.</description>
+    </item>
+    
+    <item>
+      <title>Railroady</title>
+      <link>http://codyjroberts.com/til/railroady/</link>
+      <pubDate>Fri, 04 Sep 2015 16:23:58 -0500</pubDate>
+      
+      <guid>http://codyjroberts.com/til/railroady/</guid>
+      <description>RailRoady is an incredibly awesome gem that spits out UML Diagrams for a Rails application. It currently has support for ActiveRecord, Mongoid, and Datamapper. RailRoady relies on graphviz, you can install it via
+$ sudo apt-get install graphviz  Include it in your Gemfile
+gem &amp;#39;railroady&amp;#39;  And then run the following&amp;hellip;
+$ rake diagram:all Check the doc folder of your application to find svg&amp;rsquo;s of both your models and controllers.</description>
+    </item>
+    
+    <item>
+      <title>Embedding C &amp; Rust in Ruby</title>
+      <link>http://codyjroberts.com/til/embedding-c--rust-in-ruby/</link>
+      <pubDate>Sat, 29 Aug 2015 12:58:38 -0500</pubDate>
+      
+      <guid>http://codyjroberts.com/til/embedding-c--rust-in-ruby/</guid>
+      <description>With the introduction of Fiddle into Ruby 1.9.x, it&amp;rsquo;s pretty simple to embed C(C++) and Rust into a Ruby program. The following practically useless example compiles both Rust and Cpp files into shared object files which can then be imported by Fiddle for use in the Ruby file.
+##Rust create rust.rs
+//rust.rs #[no_mangle] // prevent linker from mangling function names pub extern &amp;#34;C&amp;#34; fn rust_calc(a: i32, b: i32) -&amp;gt; i32 { a + b } then compile&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>Git Interactive</title>
+      <link>http://codyjroberts.com/til/git-interactive/</link>
+      <pubDate>Thu, 27 Aug 2015 10:08:00 +0000</pubDate>
+      
+      <guid>http://codyjroberts.com/til/git-interactive/</guid>
+      <description>When you&amp;rsquo;re working on a project it can be easy to get carried away and start making changes to multiple files without committing. This occasionally happens to me when I&amp;rsquo;m working on a Rails project. While working on a feature I&amp;rsquo;ll notice a bug, quickly fix it, then go back to the feature I was working on. This happens a few times and then I realize that I haven&amp;rsquo;t commit any changes to the branch.</description>
+    </item>
+    
+    <item>
+      <title>ActiveRecord Random</title>
+      <link>http://codyjroberts.com/til/activerecord-random/</link>
+      <pubDate>Thu, 20 Aug 2015 18:44:22 -0500</pubDate>
+      
+      <guid>http://codyjroberts.com/til/activerecord-random/</guid>
+      <description>If you&amp;rsquo;re seeding a Rails database, you might run into a problem creating content that belongs to random users. In my case, I wanted users to create questions and comments. &amp;ldquo;RANDOM()&amp;rdquo; to the rescue!
+# the SQL Query user = User.limit(1).order(&amp;#34;RANDOM()&amp;#34;).to_sql =&amp;gt; &amp;#34;SELECT \&amp;#34;users\&amp;#34;.* FROM \&amp;#34;users\&amp;#34;ORDER BY RANDOM() LIMIT 1&amp;#34; # randomizes users and selects one user = User.limit(1).order(&amp;#34;RANDOM()&amp;#34;).first =&amp;gt; &amp;lt;#User:0x.....&amp;gt; # now I can use that user to create a comment user.</description>
+    </item>
+    
+    <item>
+      <title>Tmux Sessions</title>
+      <link>http://codyjroberts.com/til/tmux-sessions/</link>
+      <pubDate>Wed, 19 Aug 2015 17:05:29 -0500</pubDate>
+      
+      <guid>http://codyjroberts.com/til/tmux-sessions/</guid>
+      <description>Until today I never took advantage of using multiple tmux sessions. It&amp;rsquo;s really convenient to be able to switch between multiple projects without losing your place. This requires no extra set-up aside from having tmux installed.
+ Start a new session using your preferred method. Detach session with prefix-d View open sessions with prefix-s Tab through sessions with prefix-( &amp;amp; prefix-)  
+I found this to be a handy tool for blogging.</description>
+    </item>
+    
+    <item>
+      <title>Focused Splits</title>
+      <link>http://codyjroberts.com/til/focused-splits/</link>
+      <pubDate>Sun, 16 Aug 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://codyjroberts.com/til/focused-splits/</guid>
+      <description>Tmux and vim have been integral to my development practices for about a year now. One of my favorite vim settings is this little bit here.
+set winwidth=84set winheight=5set winminheight=5set winheight=999 This will auto-resize vim splits to maximize the viewing area of the current pane. I find this really helpful for switching back and forth between multiple files when I don&amp;rsquo;t need to see the contents of each one at the same time.</description>
+    </item>
+    
+  </channel>
+</rss>

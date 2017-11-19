@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Elixir Atoms">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Elixir Atoms">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Elixir Atoms – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Elixir Atoms
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>I&rsquo;ve officially begun my Elixir journey. Coming from some experience with F# and
+Ruby I&rsquo;ve noticed many syntax and feature similarities.  One of the first things
+I noticed was the presence of :atoms. Atoms in Elixir are similar to Ruby&rsquo;s
+symbol type. But Ruby and Elixir aren&rsquo;t the only languages that support this
+basic type. The list is long: Clojure, Smalltalk, Scheme, Scala, and Objective-C
+just to name a few. The idea seems to come from C&rsquo;s enum.</p>
+
+<p>In the simplest terms an atom is just a named constant. I often found myself
+using enums in C to pass an option to a function. This happens to be a common
+pattern in Elixir as well.</p>
+
+<p>Atoms come in handy when pattern matching return values. Playing around with
+Phoenix I have noticed that a lot of functions return a tuple with the first
+element being :ok or :error. This makes it really simple to handle behavior
+based on success and failure because :ok and :error will always have the same
+value that you can match against.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">case</span> <span class="n">foo</span> <span class="n">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="p"></span><span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;SUCCESS!!@!@$*()&#34;</span>
+  <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="p"></span><span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;sadface&#34;</span>
+<span class="n">end</span></code></pre></div>
+<p>That brings me to a very important point. Atoms are completely unique. The named
+text is stored along with its numerical value, one word in size, in a lookup table.
+Atoms are NOT garbage collected, and any two atoms with the same name will always
+be equivalent. True and false are actually atoms in Elixir, there is no Boolean
+type.</p>
+
+<p>There are some pros and cons here. Atoms provide for great performance because
+their lookup times are very fast. The important caveat here is that memory
+consumption can become a real issue. Each atom is one word in size. The default
+limitation by the VM is 1,048,577 but it&rsquo;s unlikely that you would want anywhere
+close to that number. It has been suggested by many to never dynamically generate
+atoms, and for good reason.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written January 27, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/squashing-commits/">← Squashing Commits</a>&nbsp;
+            <a href="/til/elixir-structs/" style="float:right;">Elixir Structs →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Squashing Commits">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Squashing Commits">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Squashing Commits – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Squashing Commits
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>Today I was working on a simple change to a repository I forked
+JacobEvelyn/Friends.  The issue was just a few style errors caught by RuboCop.
+I made a stupid mistake and the TravisCI build failed (oh the value in CI!).  So
+I pushed another commit fixing the changes but felt that the minor fix didn&rsquo;t
+warrant it&rsquo;s own commit.  I searched for a solution and came across the ability
+to squash commits.  Squashing is just like it sounds, it merges more than one
+commit together.</p>
+
+<p>Lets say you have two commits on a branch and you only want one with all the
+changes.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Checkout branch
+</span><span class="c1"></span>$ git checkout some-branch
+<span class="c1"># Interactive rebase
+</span><span class="c1"></span>$ git rebase -i</code></pre></div>
+<p>This will open your default editor with a list of all the commits in the branch.
+Rename pick to squash for the commits you wish to squash.  In my case I wanted
+to keep the first commit and squash the second. So my editor had something like:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">pick <span class="o">[</span>commithash<span class="o">]</span> commit1
+squash <span class="o">[</span>commithash<span class="o">]</span> commit2</code></pre></div>
+<p>Save and quit. The squash proceeds and your editor should open again prompting
+you to edit the commit that has now been combined. Save when you&rsquo;re satisfied,
+wrapping up the squash.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written January 16, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/rubys-reverse-splat/">← Ruby&#39;s Reverse Splat</a>&nbsp;
+            <a href="/til/elixir-atoms/" style="float:right;">Elixir Atoms →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

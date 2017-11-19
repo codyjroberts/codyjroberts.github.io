@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="TDD with Elixir and Neovim">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="TDD with Elixir and Neovim">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  TDD with Elixir and Neovim – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            TDD with Elixir and Neovim
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>I had pretty good mileage with <a href="https://github.com/lpil/mix-test.watch">mix-test.watch</a>, but recently it hasn&rsquo;t been working for me. There also seems to be some issues using it with Phoenix. I searched for another test runner but couldn&rsquo;t seem to find one.</p>
+
+<p>In an effort to make use of Neovim&rsquo;s terminal editor and solve my testing problem, I decided to ditch my typical tmux workflow. I wrote up a simple vim binding to run my tests in a :vsplit window.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">nnoremap &lt;Leader&gt;r &lt;C-w&gt;l&lt;Insert&gt;clear&lt;CR&gt;mix test&lt;CR&gt;&lt;C-<span class="se">\&gt;</span>&lt;C-n&gt;&lt;C-w&gt;h</code></pre></div>
+<p>This will bind the leader key + &lsquo;r&rsquo; to switch to the right split, clear the screen, run mix test, and return to the left split.</p>
+
+<p>This isn&rsquo;t ideal and could use a bit of improvement, but it&rsquo;s good to switch things up occasionally.</p>
+
+<p><strong>UPDATE</strong>: I switched it up and now resort to opening a new vsplit for tests</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">nnoremap &lt;Leader&gt;r :vsplit&lt;CR&gt;:term mix test&lt;CR&gt;</code></pre></div>
+<p><strong>UPDATE #2</strong>: I pity the fool</p>
+
+<p><a href="https://github.com/ruby2elixir/mr_t">MrT</a> works wonderfully for keeping that feedback loop tight. The structure is a bit rigid at the moment. It currently will not run tests for a module unless the file names match, e.g. <code>something.ex</code> and <code>something_test.exs</code>. I keep it running and still fire off single tests using <a href="https://github.com/kassio/neoterm">neoterm</a>.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written July 8, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/elixir-comprehensions/">← Elixir Comprehensions</a>&nbsp;
+            <a href="/til/hex-dependencies-via-vimscript/" style="float:right;">Hex Dependencies via Vimscript →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

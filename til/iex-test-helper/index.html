@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="IEx Test Helper">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="IEx Test Helper">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  IEx Test Helper – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            IEx Test Helper
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>This week at <a href="https://www.meetup.com/ChicagoElixir/">Chicago Elixir</a> we were paring on some <a href="http://exercism.io/languages/elixir/about">Exercism</a>. <a href="https://twitter.com/dorian_escplan">Dorian Karter</a> was looking for a way to run ExUnit tests inside of IEx without mix.  Surely there must be a way! After some research I came up with this nugget.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1">#.iex.exs</span>
+<span class="n">defmodule</span> <span class="p"></span><span class="nc">TestHelper</span> <span class="n">do</span>
+  <span class="na">@moduledoc</span> <span class="n">false</span>
+
+  <span class="na">@doc</span><span class="sh">&#34;&#34;&#34;
+</span><span class="sh">  Reloads files and runs ExUnit tests in the pwd
+</span><span class="sh">  &#34;&#34;&#34;</span>
+  <span class="n">def</span> <span class="n">run_tests</span><span class="p">(</span><span class="n">opts</span> <span class="p">\\</span> <span class="p">[])</span> <span class="n">do</span>
+    <span class="n">respawn</span>
+
+    <span class="n">clear?</span> <span class="o">=</span> <span class="p"></span><span class="nc">Keyword</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="ss">:clear</span><span class="p">,</span> <span class="n">false</span><span class="p">)</span>
+    <span class="n">if</span> <span class="n">clear?</span><span class="p">,</span> <span class="ss">do</span><span class="p">:</span> <span class="n">clear</span>
+
+    <span class="p"></span><span class="nc">Code</span><span class="o">.</span><span class="n">compiler_options</span><span class="p">(</span><span class="ss">ignore_module_conflict</span><span class="p">:</span> <span class="n">true</span><span class="p">)</span>
+    <span class="p"></span><span class="nc">Path</span><span class="o">.</span><span class="n">wildcard</span><span class="p">(</span><span class="s2">&#34;*_test.exs&#34;</span><span class="p">)</span>
+    <span class="o">|&gt;</span> <span class="p"></span><span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span> <span class="p"></span><span class="nc">Code</span><span class="o">.</span><span class="n">load_file</span> <span class="ni">&amp;1</span><span class="p">)</span>
+
+    <span class="p"></span><span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">cases_loaded</span>
+    <span class="p"></span><span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span>
+  <span class="n">end</span>
+<span class="n">end</span></code></pre></div>
+<p>This assumes that the <code>*_test.exs</code> files in the pwd load the required modules first. Just plop this file in the pwd or in your home directory to obtain access to it in IEx.  Happy testing!</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written December 15, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/hex-dependencies-via-vimscript/">← Hex Dependencies via Vimscript</a>&nbsp;
+            
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

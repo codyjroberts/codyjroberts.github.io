@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="What is GenServer?">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="What is GenServer?">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  What is GenServer? – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            What is GenServer?
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        
+
+<p>Erlang is highly valued for it&rsquo;s concurrency model, and the OTP framework provides
+several &lsquo;behaviours&rsquo; for building a current system. One such behaviour is the
+generic server process or gen_server. Generic server processes are an
+abstraction for the server side of client-server interactions and are often
+used to maintain state.</p>
+
+<p>Elixir provides the module GenServer for creating such processes. This module
+provides the same functionality of the Erlang behaviour. All one needs to do to
+utilize GenServer is to implement some callbacks. Here&rsquo;s a simple example:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="p"></span><span class="nc">MyServer</span> <span class="n">do</span>
+  <span class="n">use</span> <span class="p"></span><span class="nc">GenServer</span>
+
+  <span class="c1"># Client</span>
+
+  <span class="n">def</span> <span class="n">start</span><span class="p">()</span> <span class="n">do</span>
+    <span class="p"></span><span class="nc">GenServer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="n">nil</span><span class="p">)</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">start</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="n">do</span>
+    <span class="p"></span><span class="nc">GenServer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="n">nil</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="n">name</span><span class="p">)</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="n">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p"></span><span class="nc">Map</span><span class="o">.</span><span class="n">new</span><span class="p">}</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">get</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="n">do</span>
+    <span class="p"></span><span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="p">{</span><span class="ss">:get</span><span class="p">,</span> <span class="n">key</span><span class="p">})</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">put</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="n">do</span>
+    <span class="p"></span><span class="nc">GenServer</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="p">{</span><span class="ss">:put</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">})</span>
+  <span class="n">end</span>
+
+  <span class="c1"># Server</span>
+
+  <span class="n">def</span> <span class="n">handle_cast</span><span class="p">({</span><span class="ss">:put</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">},</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
+    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="p"></span><span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)}</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:get</span><span class="p">,</span> <span class="n">key</span><span class="p">},</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
+    <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="p"></span><span class="nc">Map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">key</span><span class="p">),</span> <span class="n">state</span><span class="p">}</span>
+  <span class="n">end</span>
+<span class="n">end</span></code></pre></div>
+<p>We define a our module and use GenServer. Using GenServer sets up the 6 required
+callbacks for a generic server process, leaving us to define/overwrite the
+defaults.</p>
+
+<p>So what does the code above do exactly?</p>
+
+<h2 id="start-2-start-3">start/2 &amp;&amp; start/3</h2>
+
+<p>Starts the server, giving it an optional name that will be registered
+locally on the BEAM instance. The name can then be used in place of the pid.</p>
+
+<h2 id="init-1">init/1</h2>
+
+<p>Invoked when the server is started with start/2 or start/3. Initializes our
+map, the data structure that will handle the state.</p>
+
+<h2 id="handle-cast-2">handle_cast/2</h2>
+
+<p>A required callback for GenServer that handles asynchronous (fire and forget)
+requests.  Casts do not send a reply to the client, therefore it is non blocking.</p>
+
+<h2 id="handle-call-2">handle_call/2</h2>
+
+<p>A required callback for GenServer that handles synchronous requests. Call does
+block the caller so it should only be used when we need confirmation or to return
+a value.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written February 18, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/elixir-structs/">← Elixir Structs</a>&nbsp;
+            <a href="/til/elixir-comprehensions/" style="float:right;">Elixir Comprehensions →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

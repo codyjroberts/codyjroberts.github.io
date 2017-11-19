@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Embedding C &amp; Rust in Ruby">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Embedding C &amp; Rust in Ruby">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Embedding C &amp; Rust in Ruby – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Embedding C &amp; Rust in Ruby
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>With the introduction of Fiddle into Ruby 1.9.x, it&rsquo;s pretty simple to embed
+C(C++) and Rust into a Ruby program.  The following practically useless example
+compiles both Rust and Cpp files into shared object files which can then be
+imported by Fiddle for use in the Ruby file.</p>
+
+<p>##Rust
+create rust.rs</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//rust.rs
+</span><span class="c1"></span><span class="cp">#[no_mangle] </span><span class="c1">// prevent linker from mangling function names
+</span><span class="c1"></span><span class="n">pub</span> <span class="k">extern</span> <span class="sa"></span><span class="s">&#34;C&#34;</span> <span class="n">fn</span> <span class="n">rust_calc</span><span class="p">(</span><span class="nl">a</span><span class="p">:</span> <span class="n">i32</span><span class="p">,</span> <span class="nl">b</span><span class="p">:</span> <span class="n">i32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">i32</span> <span class="p">{</span>
+  <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="p">}</span></code></pre></div>
+<p>then compile&hellip;</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ rustc rust.rs --crate-type<span class="o">=</span>dylib</code></pre></div>
+<p>Note: on some systems the shared object file will have extension .dylib</p>
+
+<p>##C / C++
+create calc.cpp</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//calc.cpp
+</span><span class="c1"></span><span class="k">extern</span> <span class="sa"></span><span class="s">&#34;C&#34;</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">cpp_calc</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">){</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<p>then compile&hellip;</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ g++ -c -fPIC -o calc.o calc.cpp
+$ g++ -shared -o libcpp.so calc.o</code></pre></div>
+<p>##Ruby</p>
+
+<p>There should now be both a librust.so and libcpp.so in your current directory.</p>
+
+<p>create embed.rb</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="c1">#embed.rb</span>
+
+<span class="nb">require</span> <span class="s1">&#39;fiddle&#39;</span>
+<span class="nb">require</span> <span class="s1">&#39;fiddle/import&#39;</span>
+
+<span class="k">module</span> <span class="nn">EmbedRust</span>
+  <span class="kp">extend</span> <span class="no">Fiddle</span><span class="o">::</span><span class="no">Importer</span>
+
+  <span class="n">dlload</span> <span class="s1">&#39;./librust.so&#39;</span>
+
+  <span class="n">extern</span> <span class="s2">&#34;int rust_calc(int, int)&#34;</span>
+<span class="k">end</span>
+
+<span class="k">module</span> <span class="nn">EmbedCpp</span>
+  <span class="kp">extend</span> <span class="no">Fiddle</span><span class="o">::</span><span class="no">Importer</span>
+
+  <span class="n">dlload</span> <span class="s1">&#39;./libcpp.so&#39;</span>
+
+  <span class="n">extern</span> <span class="s2">&#34;int cpp_calc(int, int)&#34;</span>
+<span class="k">end</span>
+
+<span class="nb">puts</span> <span class="s2">&#34;Rust: </span><span class="si">#{</span><span class="no">EmbedRust</span><span class="o">.</span><span class="n">rust_calc</span><span class="p">(</span><span class="mi">5</span><span class="o"></span><span class="p">,</span> <span class="mi">5</span><span class="o"></span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span>
+<span class="nb">puts</span> <span class="s2">&#34;Cpp: </span><span class="si">#{</span><span class="no">EmbedCpp</span><span class="o">.</span><span class="n">cpp_calc</span><span class="p">(</span><span class="mi">5</span><span class="o"></span><span class="p">,</span> <span class="mi">5</span><span class="o"></span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span></code></pre></div>
+<p>That&rsquo;s it!  Obviously this example is trivial, and you gain next to nothing by
+using Rust or C.  However if you need a performance increase, or have an
+existing library it could be pretty handy.  Just be weary of exceptions!</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written August 29, 2015. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/git-interactive/">← Git Interactive</a>&nbsp;
+            <a href="/til/railroady/" style="float:right;">Railroady →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

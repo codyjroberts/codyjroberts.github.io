@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="ActiveRecord Random">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="ActiveRecord Random">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  ActiveRecord Random – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            ActiveRecord Random
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>If you&rsquo;re seeding a Rails database, you might run into a problem creating
+content that belongs to random users.  In my case, I wanted users to
+create questions and comments. &ldquo;RANDOM()&rdquo; to the rescue!</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="c1"># the SQL Query</span>
+<span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="o"></span><span class="p">)</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&#34;RANDOM()&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">to_sql</span>
+<span class="o">=&gt;</span> <span class="s2">&#34;SELECT  </span><span class="se">\&#34;</span><span class="s2">users</span><span class="se">\&#34;</span><span class="s2">.* FROM </span><span class="se">\&#34;</span><span class="s2">users</span><span class="se">\&#34;</span><span class="s2">  ORDER BY RANDOM() LIMIT 1&#34;</span>
+
+<span class="c1"># randomizes users and selects one</span>
+<span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="o"></span><span class="p">)</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&#34;RANDOM()&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
+<span class="o">=&gt;</span> <span class="o">&lt;</span><span class="c1">#User:0x.....&gt;</span>
+
+<span class="c1"># now I can use that user to create a comment</span>
+<span class="n">user</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">body</span><span class="p">:</span> <span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="ss">question_id</span><span class="p">:</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="mi">20</span><span class="o"></span><span class="p">))</span></code></pre></div>
+<p>Using the RANDOM() query is much faster than using plain old Ruby, not that
+this is particularly important for seeding a test database.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written August 20, 2015. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/tmux-sessions/">← Tmux Sessions</a>&nbsp;
+            <a href="/til/git-interactive/" style="float:right;">Git Interactive →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

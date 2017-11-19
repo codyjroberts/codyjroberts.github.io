@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Articles on codyjroberts.com</title>
+    <link>http://codyjroberts.com/articles/</link>
+    <description>Recent content in Articles on codyjroberts.com</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 15 Apr 2016 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://codyjroberts.com/articles/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Chowmonger (Phoenix &amp; Ember)</title>
+      <link>http://codyjroberts.com/articles/chowmonger-phoenix--ember/</link>
+      <pubDate>Fri, 15 Apr 2016 00:00:00 +0000</pubDate>
+      
+      <guid>http://codyjroberts.com/articles/chowmonger-phoenix--ember/</guid>
+      <description>Introduction Work in Progress (Living Document): Expect issues! I&amp;rsquo;ve learned quite a bit since I wrote this for my independent study back in April. I&amp;rsquo;ll be updating this tutorial to reflect the current status of the project as soon as I have time. Until then you can view a working version here &amp;ndash; Jun/08/16
+For this tutorial we&amp;rsquo;ll go step-by-step through the creation of a Phoenix API and an EmberJS app to consume it.</description>
+    </item>
+    
+    <item>
+      <title>Ember Data &amp; Components</title>
+      <link>http://codyjroberts.com/articles/ember-data--components/</link>
+      <pubDate>Fri, 01 Apr 2016 07:00:00 +0000</pubDate>
+      
+      <guid>http://codyjroberts.com/articles/ember-data--components/</guid>
+      <description>I decided to build an EmberJS frontend to the Phoenix API i&amp;rsquo;ve been working on. I have mostly avoided frontend frameworks purely due to the learning curve and lack of time. The independent study that I&amp;rsquo;m doing this semester allows me a bit of freedom to learn what I think is important. So for the last week and a half I&amp;rsquo;ve been learning about EmberJS and I must say it&amp;rsquo;s been challenging and rewarding.</description>
+    </item>
+    
+    <item>
+      <title>Streams, Enums, and Protocols!</title>
+      <link>http://codyjroberts.com/articles/streams-enums-and-protocols/</link>
+      <pubDate>Fri, 05 Feb 2016 12:00:00 -0600</pubDate>
+      
+      <guid>http://codyjroberts.com/articles/streams-enums-and-protocols/</guid>
+      <description>I was initially very confused about the difference between the Enum and Stream modules in Elixir. If you&amp;rsquo;re also confused, hopefully this short post should clear it up for you.
+Enumerable protocol Protocols, as defined by elixir-lang.org, are a mechanism to achieve polymorphism in Elixir. The Enumerable protocol is a built-in protocol that is shipped with the language. Both the Enum and Stream modules implement the Enumerable protocol. To put it simply, this means that they both rely on the same standards and can be used in the same manner.</description>
+    </item>
+    
+    <item>
+      <title>A Tour of Phoenix</title>
+      <link>http://codyjroberts.com/articles/a-tour-of-phoenix/</link>
+      <pubDate>Sat, 30 Jan 2016 12:00:00 -0600</pubDate>
+      
+      <guid>http://codyjroberts.com/articles/a-tour-of-phoenix/</guid>
+      <description>Working with Rails has been wonderful: there are many tutorials and resources to choose from, ruby is a wonderful language, there are an extensive ammount of third party libraries (gems), and the framework just makes sense. That being said I found it quite easy to build apps without truly understanding what&amp;rsquo;s beneath the surface. This is not a fault of Rails so much as it is a fault of the age of its codebase and my inexperience with web frameworks.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Elixir Comprehensions">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Elixir Comprehensions">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Elixir Comprehensions – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Elixir Comprehensions
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>Comprehensions are a pretty neat little feature of elixir. They allow you to
+construct a data structure from one or two enumerables while filtering and
+transforming the data.  Here are some examples:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">for</span> <span class="n">x</span> <span class="o">&lt;-</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="ss">do</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">50</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">]</span>
+
+<span class="n">for</span> <span class="p">{</span><span class="n">name</span><span class="p">,</span> <span class="n">age</span><span class="p">}</span> <span class="o">&lt;-</span> <span class="p">[{</span><span class="s2">&#34;bob&#34;</span><span class="p">,</span> <span class="mi">20</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;sue&#34;</span><span class="p">,</span> <span class="mi">50</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;jim&#34;</span><span class="p">,</span> <span class="mi">34</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;carla&#34;</span><span class="p">,</span> <span class="mi">75</span><span class="p">}],</span> <span class="n">age</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">,</span> <span class="ss">do</span><span class="p">:</span> <span class="n">name</span>
+<span class="p">[</span><span class="s2">&#34;bob&#34;</span><span class="p">,</span> <span class="s2">&#34;jim&#34;</span><span class="p">]</span>
+
+<span class="n">for</span> <span class="p">{</span><span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="s2">&#34;F&#34;</span><span class="p">}</span> <span class="o">&lt;-</span> <span class="p">[{</span><span class="s2">&#34;bob&#34;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&#34;M&#34;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;sue&#34;</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&#34;F&#34;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;jim&#34;</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="s2">&#34;M&#34;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;carla&#34;</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="s2">&#34;F&#34;</span><span class="p">}],</span>
+    <span class="ss">do</span><span class="p">:</span> <span class="n">name</span>
+<span class="p">[</span><span class="s2">&#34;sue&#34;</span><span class="p">,</span> <span class="s2">&#34;carla&#34;</span><span class="p">]</span>
+
+<span class="n">for</span> <span class="p">{</span><span class="n">name</span><span class="p">,</span> <span class="n">age</span><span class="p">}</span> <span class="o">&lt;-</span> <span class="p">[{</span><span class="s2">&#34;bob&#34;</span><span class="p">,</span> <span class="mi">20</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;sue&#34;</span><span class="p">,</span> <span class="mi">50</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;jim&#34;</span><span class="p">,</span> <span class="mi">34</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;carla&#34;</span><span class="p">,</span> <span class="mi">75</span><span class="p">}],</span>
+    <span class="n">candy</span>       <span class="o">&lt;-</span> <span class="p">[</span><span class="s2">&#34;goodbar&#34;</span><span class="p">,</span> <span class="s2">&#34;snickers&#34;</span><span class="p">,</span> <span class="s2">&#34;reeses&#34;</span><span class="p">],</span>
+    <span class="n">age</span> <span class="o">&gt;</span> <span class="mi">40</span><span class="p">,</span>
+    <span class="ss">do</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">,</span> <span class="n">candy</span><span class="p">}</span>
+<span class="p">[{</span><span class="s2">&#34;sue&#34;</span><span class="p">,</span> <span class="s2">&#34;goodbar&#34;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;sue&#34;</span><span class="p">,</span> <span class="s2">&#34;snickers&#34;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;sue&#34;</span><span class="p">,</span> <span class="s2">&#34;reeses&#34;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s2">&#34;carla&#34;</span><span class="p">,</span> <span class="s2">&#34;goodbar&#34;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;carla&#34;</span><span class="p">,</span> <span class="s2">&#34;snickers&#34;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;carla&#34;</span><span class="p">,</span> <span class="s2">&#34;reeses&#34;</span><span class="p">}]</span>
+
+<span class="n">for</span> <span class="n">file</span> <span class="o">&lt;-</span> <span class="p"></span><span class="nc">File</span><span class="o">.</span><span class="n">ls!</span><span class="p">,</span> <span class="p"></span><span class="nc">String</span><span class="o">.</span><span class="n">contains?</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&#34;.html&#34;</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="n">file</span>
+<span class="p">[</span><span class="s2">&#34;projects.html&#34;</span><span class="p">,</span> <span class="s2">&#34;about.html&#34;</span><span class="p">,</span> <span class="s2">&#34;404.html&#34;</span><span class="p">,</span> <span class="s2">&#34;index.html&#34;</span><span class="p">]</span></code></pre></div>
+<p>As you can see you can pattern match on the enumerables, filter inline, and work
+with more than one enumerable at at time.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written March 6, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/what-is-genserver/">← What is GenServer?</a>&nbsp;
+            <a href="/til/tdd-with-elixir-and-neovim/" style="float:right;">TDD with Elixir and Neovim →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Git Interactive">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Git Interactive">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Git Interactive – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Git Interactive
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>When you&rsquo;re working on a project it can be easy to get carried away and start
+making changes to multiple files without committing.  This occasionally happens to me
+when I&rsquo;m working on a Rails project.  While working on a feature I&rsquo;ll notice a
+bug, quickly fix it, then go back to the feature I was working on.  This happens
+a few times and then I realize that I haven&rsquo;t commit any changes to the branch.</p>
+
+<p>This is where git&rsquo;s interactive staging really comes in handy.  Instead of manually
+adding and patching files, &lsquo;git add -i&rsquo; will take you through the process of
+staging.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">*** Commands ***
+  <span class="m">1</span>: status       <span class="m">2</span>: update       <span class="m">3</span>: revert       <span class="m">4</span>: add untracked
+  <span class="m">5</span>: patch        <span class="m">6</span>: diff         <span class="m">7</span>: quit         <span class="m">8</span>: <span class="nb">help</span>
+What now&gt;</code></pre></div>
+<p>The menu is pretty intuitive.  Check the status with 1, add new files with 4 and
+patch chunks with 5.  Go ahead and read more about this nifty feature
+<a href="https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging">here</a>.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written August 27, 2015. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/activerecord-random/">← ActiveRecord Random</a>&nbsp;
+            <a href="/til/embedding-c--rust-in-ruby/" style="float:right;">Embedding C &amp; Rust in Ruby →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

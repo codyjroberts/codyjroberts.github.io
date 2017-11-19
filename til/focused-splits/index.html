@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Focused Splits">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Focused Splits">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Focused Splits – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Focused Splits
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>Tmux and vim have been integral to my development practices for about a year
+now. One of my favorite vim settings is this little bit here.</p>
+<div class="highlight"><pre class="chroma"><code class="language-vim" data-lang="vim"><span class="nx">set</span> <span class="nx">winwidth</span><span class="p">=</span><span class="m">84</span><span class="err">
+</span><span class="err"></span><span class="nx">set</span> <span class="nx">winheight</span><span class="p">=</span><span class="m">5</span><span class="err">
+</span><span class="err"></span><span class="nx">set</span> <span class="nx">winminheight</span><span class="p">=</span><span class="m">5</span><span class="err">
+</span><span class="err"></span><span class="nx">set</span> <span class="nx">winheight</span><span class="p">=</span><span class="m">999</span></code></pre></div>
+<p>This will auto-resize vim splits to maximize the viewing area of the current
+pane.  I find this really helpful for switching back and forth between multiple
+files when I don&rsquo;t need to see the contents of each one at the same time.  If I
+happen to need to see the contents of two files at the same time I&rsquo;ll usually
+just open up a tmux pane.</p>
+
+<p>I can&rsquo;t exactly remember where I found this, but I think it was from <a href="http://www.benorenstein.com/">Ben
+Orenstein</a> of thoughtbot.  A quick search finds
+many .vimrc files with these settings.  It was thoughtbot, however, who
+introduced me to the amazing ability to use the same key binding to jump
+between vim/tmux panes.  I highly recommend checking it
+<a href="https://robots.thoughtbot.com/seamlessly-navigate-vim-and-tmux-splits">out</a>.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written August 16, 2015. </em>
+            </small>
+        </p>
+
+        <p>
+            
+            <a href="/til/tmux-sessions/" style="float:right;">Tmux Sessions →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

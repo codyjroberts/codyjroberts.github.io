@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Railroady">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Railroady">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Railroady – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Railroady
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p><a href="http://railroady.prestonlee.com/">RailRoady</a> is an incredibly awesome gem that spits out UML Diagrams for a
+Rails application.  It currently has support for ActiveRecord, Mongoid, and
+Datamapper.  RailRoady relies on graphviz, you can install it via</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo apt-get install graphviz </code></pre></div>
+<p>Include it in your Gemfile</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">gem <span class="s1">&#39;railroady&#39;</span> </code></pre></div>
+<p>And then run the following&hellip;</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ rake diagram:all</code></pre></div>
+<p>Check the doc folder of your application to find svg&rsquo;s of
+both your models and controllers. That&rsquo;s it!</p>
+
+<p>I found this incredibly helpful when modeling a complex relational database.
+I&rsquo;m fairly new to relational databases, so a visualization really
+helps tie everything together in my brain. I can definitely see myself using this
+tool when jumping into a large open source Rails project that I&rsquo;m unfamiliar
+with.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written September 4, 2015. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/embedding-c--rust-in-ruby/">← Embedding C &amp; Rust in Ruby</a>&nbsp;
+            <a href="/til/rubys-reverse-splat/" style="float:right;">Ruby&#39;s Reverse Splat →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

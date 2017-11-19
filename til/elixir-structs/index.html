@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Elixir Structs">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Elixir Structs">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Elixir Structs – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Elixir Structs
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>Elixir structs are built on top of Maps, a key/value pair data structure.
+Structs provide helpful features such as default values and compile time errors.</p>
+
+<p>Structs are usually defined using the defstruct/1 inside of a module.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="p"></span><span class="nc">Kitty</span> <span class="n">do</span>
+  <span class="n">defstruct</span> <span class="ss">name</span><span class="p">:</span> <span class="n">nil</span><span class="p">,</span> <span class="ss">age</span><span class="p">:</span> <span class="n">nil</span><span class="p">,</span> <span class="ss">breed</span><span class="p">:</span> <span class="n">nil</span>
+  <span class="c1">#defstruct [:name, :age, :breed]</span>
+<span class="n">end</span></code></pre></div>
+<p>defstruct/1 takes a key/value list where the values are the defaults. If you
+happen to be defaulting to nil for every field, you can use the alternative
+syntax on the second line that only provides the keys.</p>
+
+<p>You can access a struct in the same way as a Map, except it&rsquo;s defined by its
+module name:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">iex</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">meow</span> <span class="o">=</span> <span class="p">%</span><span class="nc">Kitty</span><span class="p">{</span><span class="ss">name</span><span class="p">:</span> <span class="s2">&#34;Floyd&#34;</span><span class="p">}</span>
+<span class="p">%</span><span class="nc">Kitty</span><span class="p">{</span><span class="ss">age</span><span class="p">:</span> <span class="n">nil</span><span class="p">,</span> <span class="ss">breed</span><span class="p">:</span> <span class="n">nil</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="s2">&#34;Floyd&#34;</span><span class="p">}</span>
+<span class="n">iex</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">meow</span> <span class="o">=</span> <span class="p">%</span><span class="nc">Kitty</span><span class="p">{</span><span class="n">meow</span> <span class="o">|</span> <span class="ss">age</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="p">%</span><span class="nc">Kitty</span><span class="p">{</span><span class="ss">age</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="ss">breed</span><span class="p">:</span> <span class="n">nil</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="s2">&#34;Floyd&#34;</span><span class="p">}</span>
+<span class="n">iex</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">&gt;</span> <span class="p">%</span><span class="nc">Kitty</span><span class="p">{</span><span class="n">meow</span> <span class="o">|</span> <span class="ss">color</span><span class="p">:</span> <span class="s2">&#34;white&#34;</span><span class="p">}</span>
+<span class="o">**</span> <span class="p">(</span><span class="nc">CompileError</span><span class="p">)</span> <span class="n">iex</span><span class="p">:</span><span class="mi">5</span><span class="p">:</span> <span class="n">unknown</span> <span class="n">key</span> <span class="ss">:color</span> <span class="n">for</span> <span class="n">struct</span> <span class="p"></span><span class="nc">Kitty</span>
+    <span class="p">(</span><span class="n">elixir</span><span class="p">)</span> <span class="n">src</span><span class="o">/</span><span class="n">elixir_map</span><span class="o">.</span><span class="n">erl</span><span class="p">:</span><span class="mi">185</span><span class="p">:</span> <span class="ss">:elixir_map</span><span class="o">.</span><span class="s2">&#34;-assert_struct_keys/5-lc$^0/1-0-&#34;</span><span class="o">/</span><span class="mi">5</span>
+    <span class="p">(</span><span class="n">elixir</span><span class="p">)</span> <span class="n">src</span><span class="o">/</span><span class="n">elixir_map</span><span class="o">.</span><span class="n">erl</span><span class="p">:</span><span class="mi">62</span><span class="p">:</span> <span class="ss">:elixir_map</span><span class="o">.</span><span class="n">translate_struct</span><span class="o">/</span><span class="mi">4</span>
+<span class="n">iex</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">&gt;</span></code></pre></div>
+<p>As you can see, structs only allow entry of defined keys.</p>
+
+<p>You can also provide a typespec.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="p"></span><span class="nc">Kitty</span> <span class="n">do</span>
+  <span class="n">defstruct</span> <span class="p">[</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:age</span><span class="p">,</span> <span class="ss">:breed</span><span class="p">]</span>
+
+  <span class="na">@type</span> <span class="n">t</span> <span class="o">::</span> <span class="p">%</span><span class="nc">Kitty</span><span class="p">{</span><span class="ss">name</span><span class="p">:</span> <span class="p"></span><span class="nc">String</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="ss">age</span><span class="p">:</span> <span class="n">non_neg_integer</span><span class="p">,</span> <span class="ss">breed</span><span class="p">:</span> <span class="p"></span><span class="nc">String</span><span class="o">.</span><span class="n">t</span><span class="p">}</span>
+<span class="n">end</span></code></pre></div>
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written February 8, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/elixir-atoms/">← Elixir Atoms</a>&nbsp;
+            <a href="/til/what-is-genserver/" style="float:right;">What is GenServer? →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>

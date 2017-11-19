@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta itemprop="name" content="Hex Dependencies via Vimscript">
+        <meta itemprop="description" content="">
+        <meta name="og:title" content="Hex Dependencies via Vimscript">
+        <meta name="og:description" content="">
+        <meta name="og:type" content="website">
+
+        <title>
+            
+  Hex Dependencies via Vimscript – codyjroberts.com
+
+        </title>
+
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link rel="stylesheet" type="text/css" href="/css/syntax.css">
+        <script src="/js/caption.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <a href="/">home</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/articles">articles</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/til">til</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/about">about</a>
+            &nbsp;.&nbsp;&nbsp;
+            <a href="/contact">contact</a>
+        </header>
+
+        
+    <div class="content">
+        <h3>
+            Hex Dependencies via Vimscript
+            <aside>
+                
+            </aside>
+        </h3>
+
+        
+
+        <p>
+        <p>I found myself, in (neo)vim as always, adding a library to <code>mix.exs</code>.
+I wasn&rsquo;t sure of the current version of said package, so I reached
+for a browser to check. I&rsquo;m not sure why, but it felt so inefficient.</p>
+
+<p>The first thing I did was check the <code>mix hex</code> command. Turns out
+theres a <code>mix hex.info [pkg]</code> command that spits out some useful
+information about a given hex package. One of the details returned
+is the very handy configuration line for <code>mix.exs</code>.</p>
+
+<p>Ding! I&rsquo;ll just use that!</p>
+<div class="highlight"><pre class="chroma"><code class="language-vim" data-lang="vim"><span class="k">function</span><span class="p">!</span> <span class="nx">GetHexPkgConfig</span><span class="p">(</span><span class="nx">pkg</span><span class="p">)</span><span class="err">
+</span><span class="err"></span>  <span class="k">let</span> @<span class="m">1</span> <span class="p">=</span> <span class="nx">system</span><span class="p">(</span><span class="c">&#34;mix hex.info &#34; . a:pkg . &#34; | grep &#39;Config:&#39; | awk &#39;{ print $2,$3,$4 }&#39;&#34;)</span><span class="err">
+</span><span class="err"></span>  <span class="nx">normal</span><span class="c"> &#34;1p==</span><span class="err">
+</span><span class="err"></span><span class="k">endfunction</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="nx">command</span><span class="p">!</span> <span class="p">-</span><span class="nx">nargs</span><span class="p">=</span><span class="m">1</span> <span class="nx">HexC</span> <span class="nx">call</span> <span class="nx">GetHexPkgConfig</span><span class="p">(</span><span class="c">&#34;&lt;args&gt;&#34;)</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="nx">nnoremap</span> <span class="p">&lt;</span><span class="nx">Leader</span><span class="p">&gt;</span><span class="nx">hc</span> <span class="p">:</span><span class="nx">HexC</span></code></pre></div>
+<p>If you don&rsquo;t grok vimscript, no worries, I barely do. The above snippet
+creates a <code>HexC</code> Ex command that takes an argument for the package name.
+The command calls the defined function which snags the config line from
+the <code>mix hex.info</code> command and pastes it into the buffer.</p>
+
+<p>The real work comes from <code>grep</code> and <code>awk</code>. We use <code>grep</code> to snag the line that
+contains &lsquo;Config:&rsquo; and <code>awk</code> to pull out the columns that we need.</p>
+
+<p>Magical.</p>
+
+        </p>
+    </div>
+
+    <footer>
+        <p>
+            <small>
+                <em>Written September 30, 2016. </em>
+            </small>
+        </p>
+
+        <p>
+            <a href="/til/tdd-with-elixir-and-neovim/">← TDD with Elixir and Neovim</a>&nbsp;
+            <a href="/til/iex-test-helper/" style="float:right;">IEx Test Helper →</a>
+        </p>
+    </footer>
+
+    </body>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109896473-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-109896473-1');
+    </script>
+</html>
